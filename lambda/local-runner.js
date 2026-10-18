@@ -1,8 +1,8 @@
 /**
- * Local Test Runner
+ * Local Test Runner for faphouse3.com
  *
  * Runs your Lambda handler locally with mock API Gateway events,
- * allowing you to test your domain parsing, routing, and tracking logic instantly.
+ * allowing you to test your domain tracking, 10-second redirect, and image carousel logic instantly.
  *
  * Usage:
  *   node lambda/local-runner.js
@@ -19,7 +19,7 @@ const __dirname = dirname(__filename);
 
 async function runLocalTest() {
   console.log("=================================================");
-  console.log(" Multi-Domain Traffic Gateway: Local Lambda Test ");
+  console.log(" faphouse3.com Traffic Redirector: Local Test    ");
   console.log("=================================================\n");
 
   const mockPath = resolve(__dirname, "../contracts/mock-event-domain3-wrong.json");
@@ -29,7 +29,7 @@ async function runLocalTest() {
   console.log(`[INFO] Path: "${eventData.rawPath}", Query: "${eventData.rawQueryString}"\n`);
 
   const mockContext = {
-    functionName: "multiDomainTrafficGateway",
+    functionName: "faphouse3TrafficRedirector",
     awsRequestId: "local-test-req-001",
     getRemainingTimeInMillis: () => 3000
   };

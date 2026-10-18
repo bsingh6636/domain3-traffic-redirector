@@ -1,134 +1,110 @@
-# Architecture Design: Multi-Domain Traffic Gateway
+# Architecture Design: Single Domain Traffic Gateway (`faphouse3.com` &rarr; `faphouse2.com`)
 
-This document explains how a single serverless backend can receive, track, and route traffic across multiple domains (`faphouse.com`, `faphouse2.com`, `faphouse3.com`) with zero dedicated server maintenance and near-zero cost.
+This document details the serverless architecture designed specifically for **`faphouse3.com`** as a single dedicated ingress gateway that counts visitors, displays a branded 10-second redirect notice with an image slider, and forwards traffic to **`faphouse2.com`**.
 
 ---
 
-## 1. High-Level Architecture Overview
+## 1. Single-Domain Architecture Diagram
 
 ```mermaid
 flowchart TD
-    subgraph Clients["User Ingress"]
-        C1["User visits faphouse.com"]
-        C2["User visits faphouse2.com"]
-        C3["User visits faphouse3.com (New)"]
+    subgraph Client["Visitor Traffic"]
+        User["User navigates to faphouse3.com"]
     end
 
-    subgraph EdgeDNS["DNS & Edge Routing"]
-        CF["Cloudflare / Route 53 DNS<br>(CNAME or A-Alias Records)"]
-        ACM["AWS Certificate Manager (ACM)<br>(Multi-domain SSL/TLS Certificate)"]
+    subgraph EdgeLayer["DNS & Edge Ingress"]
+        CF["Cloudflare DNS (lex.ns / miki.ns)<br>CNAME Record for faphouse3.com"]
+        ACM["AWS Certificate Manager (ACM)<br>SSL/TLS for faphouse3.com & *.faphouse3.com"]
     end
 
-    subgraph AWSBackend["AWS Serverless Backend"]
-        APIGW["Amazon API Gateway (HTTP API v2)<br>3 Custom Domain Names Mapped to 1 Stage"]
-        LAMBDA["AWS Lambda (Node.js 20.x/22.x)<br>Domain Tracker & Routing Controller"]
-        DDB[("Amazon DynamoDB<br>DomainTrafficStats Table")]
+    subgraph ServerlessBackend["AWS Serverless Backend"]
+        APIGW["Amazon API Gateway (HTTP API v2)<br>Custom Domain: faphouse3.com → $default"]
+        LAMBDA["AWS Lambda (Node.js 20.x/22.x)<br>faphouse3 Traffic Controller"]
+        DDB[("Amazon DynamoDB (DomainTrafficStats)<br>PK: faphouse3.com | SK: TOTAL / DATE#YYYY-MM-DD")]
     end
 
-    subgraph Destinations["Traffic Destinations"]
-        RDIR["HTTP 302 Redirect to faphouse2.com"]
-        HTML["Wrong-Domain HTML Notice Page"]
-        PASS["Target Operational Application"]
+    subgraph Presentation["Traffic Redirection & Presentation"]
+        HTML["10-Second Countdown Notice Page<br>(with Image Slider & faphouse2.com Theme)"]
+        RDIR["HTTP 302 Redirect to faphouse2.com${path}"]
+        PROD["Target Platform: https://faphouse2.com"]
     end
 
-    C1 --> CF
-    C2 --> CF
-    C3 --> CF
+    User --> CF
     CF --> APIGW
     ACM -.-> APIGW
     APIGW --> LAMBDA
     LAMBDA <--> DDB
-    LAMBDA -->|If faphouse3.com (Instant)| RDIR
-    LAMBDA -->|If faphouse3.com (Notice)| HTML
-    LAMBDA -->|If faphouse2.com| PASS
+    LAMBDA -->|Notice Mode| HTML
+    LAMBDA -->|Instant Mode| RDIR
+    HTML -->|After 10s or Button Click| PROD
+    RDIR -->|Instant 302| PROD
 ```
 
 ---
 
-## 2. Request Flow Lifecycle
-
-The sequence below illustrates the step-by-step lifecycle of a request made to `faphouse3.com`:
+## 2. Request Flow Lifecycle for `faphouse3.com`
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Browser / Visitor
-    participant DNS as Cloudflare / Route 53
-    participant APIGW as API Gateway Custom Domain
+    actor Visitor as Browser / User
+    participant Cloudflare as Cloudflare DNS
+    participant APIGW as API Gateway (faphouse3.com)
     participant Lambda as Node.js Lambda Handler
-    participant DDB as DynamoDB (DomainTrafficStats)
+    participant DynamoDB as DynamoDB (DomainTrafficStats)
+    participant Target as faphouse2.com
 
-    User->>DNS: GET https://faphouse3.com/watch?id=101
-    DNS->>APIGW: Resolves to API Gateway Edge Endpoint
-    Note over APIGW: TLS Handshake using ACM Certificate.<br>Preserves incoming Host header.
-    APIGW->>Lambda: Invokes Lambda with HTTP API v2 Event<br>(event.requestContext.domainName = "faphouse3.com")
+    Visitor->>Cloudflare: GET https://faphouse3.com/watch?id=42
+    Cloudflare->>APIGW: Forward request with SNI & Host: faphouse3.com
+    Note over APIGW: Terminates SSL with ACM cert.<br>Generates HTTP API v2 Event.
+    APIGW->>Lambda: Invokes Handler with event
     
     activate Lambda
-    Note over Lambda: Step 1: Detect domain ("faphouse3.com")<br>Step 2: Filter asset noise
-    Lambda->>DDB: UpdateItem (ADD visitCount 1, SET lastVisitedAt)
-    DDB-->>Lambda: Atomic increment confirmed
+    Note over Lambda: 1. Confirm domain is faphouse3.com<br>2. Filter asset noise (.ico, .png)<br>3. Prepare target destination: https://faphouse2.com/watch?id=42
     
-    alt Configured for Direct Redirect
-        Lambda-->>APIGW: 302 Found (Location: https://faphouse2.com/watch?id=101)
-        APIGW-->>User: HTTP 302 Redirect
-        User->>User: Browser auto-navigates to faphouse2.com
-    else Configured for Notice Demonstration
-        Lambda-->>APIGW: 200 OK (Content-Type: text/html)
-        APIGW-->>User: Renders "You've reached the wrong domain"
-        User->>User: Client-side JS counts down 5s and redirects
+    Lambda->>DynamoDB: UpdateItem (ADD visitCount 1, SET lastVisitedAt)
+    DynamoDB-->>Lambda: Increment confirmed (Atomic counter)
+    
+    alt Mode A: Branded 10-Second Redirect Notice (Configured)
+        Lambda-->>APIGW: 200 OK (Content-Type: text/html, body: UI with slider)
+        APIGW-->>Visitor: Renders FAPHOUSE 3 Notice with 10s countdown & carousel
+        Visitor->>Visitor: 10-second timer completes (or user clicks "Redirect Now")
+        Visitor->>Target: Navigates to https://faphouse2.com/watch?id=42
+    else Mode B: Headless Instant 302
+        Lambda-->>APIGW: 302 Found (Location: https://faphouse2.com/watch?id=42)
+        APIGW-->>Visitor: Browser automatically navigates to faphouse2.com
     end
     deactivate Lambda
 ```
 
 ---
 
-## 3. How a Single Backend Handles Multiple Domains
+## 3. Why a Single Domain Gateway Architecture?
 
-### The Problem
-Traditional hosting often provisions separate web servers (Nginx/Apache virtual hosts) or distinct microservices for every individual domain name. This results in multiplied operational overhead, separate SSL certificates, and fractured metrics.
+Operating `faphouse3.com` as a dedicated edge redirector provides three core advantages:
 
-### The Solution: Multi-Domain API Gateway Mapping
-Amazon API Gateway supports **Custom Domain Names**. You can create multiple custom domain names pointing to the exact same API Gateway stage:
-
-1. **Custom Domain 1**: `faphouse.com` -> mapped to `HTTP API (id: gw3domains) / $default`
-2. **Custom Domain 2**: `faphouse2.com` -> mapped to `HTTP API (id: gw3domains) / $default`
-3. **Custom Domain 3**: `faphouse3.com` -> mapped to `HTTP API (id: gw3domains) / $default`
-
-### How Lambda Knows Which Domain Was Called
-When a request passes through API Gateway, API Gateway creates a JSON payload for Lambda:
-- **`event.requestContext.domainName`**: Contains the exact custom domain name matching the incoming request (e.g. `faphouse3.com`).
-- **`event.headers['host']`**: Contains the client's HTTP Host header.
-- **`event.rawPath`** and **`event.rawQueryString`**: Retains the complete URI path and query arguments for lossless forwarding.
+1. **Anti-Censorship & Link Protection**: When regional ISPs block `faphouse.com`, new links and marketing campaigns point to `faphouse3.com`. The gateway captures this traffic and safely routes users to `faphouse2.com`.
+2. **Visitor Intelligence**: Every request hitting `faphouse3.com` is logged in DynamoDB before forwarding, providing exact metrics on how many users are arriving via this new domain.
+3. **Zero Maintenance & Minimal Cost**:
+   - Zero dedicated servers.
+   - API Gateway HTTP API charges $1.00 per 1M requests.
+   - DynamoDB On-Demand capacity is free within AWS Free Tier (25 WCU / 25 RCU).
+   - ACM SSL certificates are 100% free.
 
 ---
 
-## 4. Component Deep Dive
+## 4. Key Serverless Components
 
-### A. AWS API Gateway (HTTP API v2)
-- **Why HTTP API instead of REST API?**
-  - ~70% lower cost ($1.00 per million requests vs $3.50 for REST API).
-  - Faster latency (simpler internal architecture, no unnecessary XML/mapping transforms).
-  - Native v2 event format with clean routing keys.
-  - Automatic TLS termination.
+### A. Amazon API Gateway (HTTP API v2)
+- Handles SSL/TLS termination for `faphouse3.com`.
+- Preserves full incoming path (`event.rawPath`) and query parameters (`event.rawQueryString`).
+- Integrates directly with your Lambda function via the `$default` route.
 
 ### B. AWS Lambda (Node.js 20.x or 22.x)
-- Runs completely on-demand (scales from 0 to thousands of concurrent requests).
-- Cold start in Node.js is minimal (~150-250ms), and warm invocations execute in **under 15ms**.
-- Acts as the central router and metrics collector.
+- Executes in under 15ms.
+- Reads `TARGET_DOMAIN=https://faphouse2.com` and `COUNTDOWN_SECONDS=10` from environment variables.
+- Updates visit counts in DynamoDB atomically.
 
-### C. Amazon DynamoDB
-- Serverless NoSQL database with single-digit millisecond read/write latency.
-- Incur zero hourly charges when set to **On-Demand Capacity** mode.
-- Supports **Atomic Counters** (`ADD visitCount :val`), guaranteeing exact visit numbers even under heavy concurrent traffic without read-modify-write race conditions.
-
----
-
-## 5. Cost Analysis (AWS Free Tier & Scaling)
-
-| Service | Free Tier Allowance | Ongoing Pay-As-You-Go Cost |
-|---|---|---|
-| **API Gateway HTTP API** | 1,000,000 calls / month free (first 12 months) | $1.00 per 1M requests |
-| **AWS Lambda** | 1,000,000 requests & 3.2M seconds compute free forever | $0.20 per 1M requests |
-| **Amazon DynamoDB** | 25 GB storage + 25 WCU / 25 RCU free forever | ~$0.00 (within free tier) |
-| **AWS Certificate Manager (ACM)**| Unlimited public SSL certificates | **Free** |
-| **Total Estimated Cost** | **$0.00 / month** for the first 1M requests | ~$1.20 / million requests thereafter |
+### C. Amazon DynamoDB (`DomainTrafficStats`)
+- Single table partitioned by `domain = "faphouse3.com"`.
+- Tracks all-time visits (`metric: "TOTAL"`) and daily rollups (`metric: "DATE#YYYY-MM-DD"`).

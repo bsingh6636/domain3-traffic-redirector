@@ -1,127 +1,105 @@
-# Lambda Developer Implementation Guide
+# Lambda Developer Implementation Guide: `faphouse3.com` Redirector
 
-Welcome! Since your goal is to write the AWS Lambda backend yourself to master serverless development, this guide gives you the mental model, event interfaces, SDK patterns, and step-by-step instructions needed to implement `lambda/handler.js`.
+This guide provides the exact input event interfaces, SDK patterns, and steps to write your Node.js Lambda function in [`lambda/handler.js`](../lambda/handler.js).
 
 ---
 
-## 1. The Anatomy of an API Gateway HTTP API v2 Event
+## 1. What Your Lambda Does
 
-When a visitor hits your domain, API Gateway wraps the HTTP request into a JSON event payload and passes it to your Lambda handler function:
+1. **Receives requests arriving at `faphouse3.com`** via API Gateway HTTP API v2.
+2. **Filters out static asset noise** (`/favicon.ico`, `/robots.txt`).
+3. **Increments the visit counter** in DynamoDB for `faphouse3.com`.
+4. **Constructs the redirect target URL**: `https://faphouse2.com${path}${queryString}`.
+5. **Returns the response**: Either an immediate HTTP 302 or renders the branded HTML page with the 10-second countdown and image carousel.
 
-```javascript
-export async function handler(event, context) {
-  // `event` contains all incoming request details
-  // `context` contains AWS runtime metadata (timeout, memory, etc.)
+---
+
+## 2. API Gateway HTTP API v2 Event Interface
+
+```typescript
+interface APIGatewayHttpApiV2Event {
+  rawPath: string;            // e.g. "/watch/video-99"
+  rawQueryString: string;     // e.g. "ref=twitter&tag=top"
+  headers: {
+    host: string;             // "faphouse3.com"
+    "user-agent"?: string;
+  };
+  requestContext: {
+    domainName: string;       // "faphouse3.com"
+    http: {
+      method: "GET" | "POST";
+      sourceIp: string;       // Visitor IP
+    };
+  };
 }
 ```
 
-### Key Event Fields You Need to Extract
-
-| What You Need | Where to Find It in `event` | Example Value |
-|---|---|---|
-| **Requested Domain** | `event.requestContext.domainName` | `"faphouse3.com"` |
-| **HTTP Host Header** (fallback) | `event.headers['host']` | `"faphouse3.com"` |
-| **Request URI Path** | `event.rawPath` | `"/watch/sample-video"` |
-| **Query Parameters** | `event.rawQueryString` | `"source=ref_campaign&tag=trending"` |
-| **Visitor IP Address** | `event.requestContext.http.sourceIp` | `"198.51.100.42"` |
-| **User-Agent** | `event.headers['user-agent']` | `"Mozilla/5.0..."` |
-| **HTTP Method** | `event.requestContext.http.method` | `"GET"` |
-
 ---
 
-## 2. Step-by-Step Implementation Roadmap
+## 3. Step-by-Step Implementation in `lambda/handler.js`
 
-Open [`lambda/handler.js`](../lambda/handler.js) in your editor. Follow these 5 steps to build your handler:
-
-### Step 1: Domain Normalization
-Extract the domain name from `event.requestContext.domainName` (or `event.headers.host`).
-- Convert to lowercase: `.toLowerCase()`
-- Strip `www.` prefixes if you want unified statistics: `.replace(/^www\./, "")`
-- Ensure you have a fallback string (e.g. `"unknown"`) in case neither is present.
-
-### Step 2: Noise & Asset Filtering
-Decide if the request should increment the visit counter.
-- Check if `path.endsWith('.ico')` or includes `.well-known`.
-- If it is static asset noise, you may choose to skip the DynamoDB increment or record it under a separate `ASSETS` metric.
-
-### Step 3: Incrementing the Visit Count in DynamoDB
-To write to DynamoDB from Node.js, install and use the official AWS SDK v3:
-```bash
-npm install @aws-sdk/client-dynamodb @aws-sdk/lib-dynamodb
-```
-
-#### The Recommended AWS SDK v3 Pattern:
+### Step 1: Read the Ingress Domain and Destination
 ```javascript
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-
-// Instantiate client outside the handler to reuse connection across warm invocations
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
-
-// Inside your handler:
-const updateParams = {
-  TableName: process.env.TRACKING_TABLE_NAME || "DomainTrafficStats",
-  Key: {
-    domain: domain,
-    metric: "TOTAL"
-  },
-  UpdateExpression: "ADD visitCount :inc SET lastVisitedAt = :ts",
-  ExpressionAttributeValues: {
-    ":inc": 1,
-    ":ts": new Date().toISOString()
-  }
-};
-
-await docClient.send(new UpdateCommand(updateParams));
+const domain = event.requestContext?.domainName || event.headers?.["host"] || "faphouse3.com";
+const path = event.rawPath || "/";
+const queryString = event.rawQueryString ? `?${event.rawQueryString}` : "";
+const targetDestination = `${process.env.TARGET_DOMAIN || "https://faphouse2.com"}${path}${queryString}`;
 ```
 
-> **Crucial Tip (Resilience):** Always wrap the database call in a `try...catch` block. If DynamoDB is temporarily throttled or unavailable, you still want to execute the redirect so the visitor is not stuck on an error screen!
+### Step 2: Noise Filtering
+```javascript
+const isAssetNoise = path.endsWith(".ico") || path.endsWith(".png") || path.startsWith("/.well-known");
+```
 
-### Step 4: Routing & URL Reconstruction
-Rebuild the target URL:
-- Target origin: `https://faphouse2.com`
-- Preserve the incoming path: `path`
-- Preserve the query string: `queryString ? `?${queryString}` : ""`
-- Combine: `const target = `https://faphouse2.com${path}${queryString}`;`
+### Step 3: DynamoDB Atomic Update
+```javascript
+if (!isAssetNoise) {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    await docClient.send(new UpdateCommand({
+      TableName: process.env.TRACKING_TABLE_NAME || "DomainTrafficStats",
+      Key: { domain: "faphouse3.com", metric: `DATE#${today}` },
+      UpdateExpression: "ADD visitCount :inc SET lastVisitedAt = :ts",
+      ExpressionAttributeValues: { ":inc": 1, ":ts": new Date().toISOString() }
+    }));
+  } catch (err) {
+    console.error("[WARN] Failed to record visit to DynamoDB:", err);
+    // Don't throw! Always ensure the redirect response completes for the user.
+  }
+}
+```
 
-### Step 5: Returning the API Gateway Response
-API Gateway expects a JSON object matching `APIGatewayHttpApiV2Result`:
-
-#### Direct HTTP 302 Redirect:
+### Step 4: Returning Response
+#### Option A: Direct 302 Redirect
 ```javascript
 return {
   statusCode: 302,
   headers: {
-    "Location": target,
+    "Location": targetDestination,
     "Cache-Control": "no-cache, no-store, must-revalidate"
   }
 };
 ```
 
-#### Serving the HTML Warning Page:
-If you want to render the intermediate demonstration notice:
+#### Option B: Serving the Themed HTML Notice (10-Second Countdown & Image Slider)
 ```javascript
 import { readFileSync } from "fs";
-const htmlContent = readFileSync("./public/index.html", "utf-8");
+const htmlTemplate = readFileSync("./public/index.html", "utf-8");
 
 return {
   statusCode: 200,
   headers: {
     "Content-Type": "text/html; charset=utf-8"
   },
-  body: htmlContent
+  body: htmlTemplate
 };
 ```
 
 ---
 
-## 3. Testing Locally Before Deploying
-
-You do **not** need an active AWS account to test your logic:
-1. Run:
-   ```bash
-   npm run test:local
-   ```
-2. This invokes `lambda/local-runner.js`, which passes `contracts/mock-event-domain3-wrong.json` directly into your handler and inspects the return code, headers, and body.
-3. Edit `lambda/handler.js`, run `npm run test:local`, and verify your output!
+## 4. Local Testing Without AWS
+Run the zero-AWS test harness anytime:
+```bash
+npm run test:local
+```
+This loads [`contracts/mock-event-domain3-wrong.json`](../contracts/mock-event-domain3-wrong.json), invokes your handler, and displays the status code, headers, and parsed output.
