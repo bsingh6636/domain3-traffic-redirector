@@ -1,0 +1,31 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/",
+  "rawQueryString": "",
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "host": "faphouse.com",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "x-forwarded-for": "203.0.113.15",
+    "x-forwarded-proto": "https"
+  },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "gw3domains01",
+    "domainName": "faphouse.com",
+    "domainPrefix": "faphouse",
+    "http": {
+      "method": "GET",
+      "path": "/",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "203.0.113.15",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+    },
+    "requestId": "AB123C4vIAMEU8R=",
+    "routeKey": "$default",
+    "stage": "$default",
+    "timeEpoch": 1792377605000
+  },
+  "isBase64Encoded": false
+}

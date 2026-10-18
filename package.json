@@ -1,0 +1,25 @@
+{
+  "name": "multi-domain-traffic-gateway",
+  "version": "1.0.0",
+  "description": "Lightweight multi-domain tracking and redirect gateway architecture for AWS Lambda & DynamoDB",
+  "type": "module",
+  "main": "lambda/handler.js",
+  "scripts": {
+    "test:local": "node lambda/local-runner.js",
+    "serve": "node scripts/serve-demo.js"
+  },
+  "keywords": [
+    "aws-lambda",
+    "api-gateway",
+    "dynamodb",
+    "domain-tracking",
+    "redirect-system",
+    "multi-domain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.750.0",
+    "@aws-sdk/lib-dynamodb": "^3.750.0"
+  }
+}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain Redirect Notice</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+</head>
+<body>
+  <main class="redirect-container">
+    <div class="redirect-card">
+      <div class="badge">
+        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Domain Reroute</span>
+      </div>
+
+      <h1 class="card-title" id="noticeHeading">You've reached the wrong domain.</h1>
+
+      <p class="card-description" id="noticeMessage">
+        Redirecting you to <strong id="highlightDomain">faphouse2.com</strong>.
+      </p>
+
+      <!-- Animated Radial Countdown Timer -->
+      <div class="timer-wrapper" id="timerWrapper" aria-live="polite">
+        <svg class="timer-svg" viewBox="0 0 100 100">
+          <circle class="timer-circle-bg" cx="50" cy="50" r="40" />
+          <circle class="timer-circle-progress" id="timerCircle" cx="50" cy="50" r="40" />
+        </svg>
+        <span class="timer-number" id="countdownDisplay">5</span>
+      </div>
+
+      <!-- Preview of Target URL with preserved path/query -->
+      <div class="url-preview">
+        <span class="preview-label">Destination URL:</span>
+        <div class="preview-destination" id="targetUrlDisplay">https://faphouse2.com</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-group">
+        <button id="redirectNowBtn" class="btn btn-primary">
+          Redirect Now
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+        <button id="cancelRedirectBtn" class="btn btn-secondary">
+          Cancel Auto-Redirect
+        </button>
+      </div>
+
+      <div class="footer-meta">
+        <span>Requested: <code id="detectedDomain">faphouse3.com</code></span>
+        <span>Gateway: Multi-Domain Tracker v1.0</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const config = window.REDIRECT_CONFIG || {
+        targetDomain: "https://faphouse2.com",
+        countdownSeconds: 5,
+        autoRedirect: true,
+        preservePathAndQuery: true,
+        noticeMessage: "You've reached the wrong domain. Redirecting you to faphouse2.com.",
+        simulatedIncomingDomain: "faphouse3.com"
+      };
+
+      // Detect current requested domain and path
+      const currentHost = window.location.hostname && !["localhost", "127.0.0.1"].includes(window.location.hostname)
+        ? window.location.hostname
+        : config.simulatedIncomingDomain;
+
+      const pathAndQuery = config.preservePathAndQuery
+        ? `${window.location.pathname === "/" ? "" : window.location.pathname}${window.location.search}`
+        : "";
+
+      const finalDestination = `${config.targetDomain.replace(/\/$/, "")}${pathAndQuery}`;
+
+      // Update UI elements
+      document.getElementById("detectedDomain").textContent = currentHost;
+      document.getElementById("targetUrlDisplay").textContent = finalDestination;
+
+      let remaining = config.countdownSeconds;
+      let timerId = null;
+      let isCancelled = false;
+
+      const countdownDisplay = document.getElementById("countdownDisplay");
+      const timerCircle = document.getElementById("timerCircle");
+      const totalCircumference = 2 * Math.PI * 40; // ~251.2
+
+      function updateProgress() {
+        countdownDisplay.textContent = remaining;
+        const offset = totalCircumference - (remaining / config.countdownSeconds) * totalCircumference;
+        timerCircle.style.strokeDashoffset = offset;
+      }
+
+      function executeRedirect() {
+        console.log(`[Redirect] Navigating to: ${finalDestination}`);
+        window.location.href = finalDestination;
+      }
+
+      if (config.autoRedirect && remaining > 0) {
+        updateProgress();
+        timerId = setInterval(() => {
+          if (isCancelled) return;
+          remaining -= 1;
+          updateProgress();
+
+          if (remaining <= 0) {
+            clearInterval(timerId);
+            executeRedirect();
+          }
+        }, 1000);
+      } else if (config.autoRedirect && remaining === 0) {
+        executeRedirect();
+      }
+
+      // Manual Redirect Button
+      document.getElementById("redirectNowBtn").addEventListener("click", () => {
+        if (timerId) clearInterval(timerId);
+        executeRedirect();
+      });
+
+      // Cancel Button
+      document.getElementById("cancelRedirectBtn").addEventListener("click", function () {
+        isCancelled = true;
+        if (timerId) clearInterval(timerId);
+        this.textContent = "Auto-Redirect Paused";
+        this.disabled = true;
+        countdownDisplay.textContent = "—";
+        document.getElementById("noticeHeading").textContent = "Auto-Redirect Cancelled";
+        console.log("[Redirect] Automatic redirection cancelled by user.");
+      });
+    })();
+  </script>
+</body>
+</html>
