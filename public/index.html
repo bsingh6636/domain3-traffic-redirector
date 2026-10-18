@@ -252,6 +252,16 @@
       const timerHighlight = document.getElementById("timerHighlight");
       const progressFill = document.getElementById("progressFill");
 
+      console.log(
+        "%c[FAPHOUSE 3 GATEWAY]%c Initialized traffic gateway router.",
+        "color: #f4bb2e; font-weight: bold; font-size: 12px;",
+        "color: inherit;"
+      );
+      console.log(`[GATEWAY] Ingress Domain: "${currentHost}"`);
+      console.log(`[GATEWAY] Forwarding Destination: "${finalDestination}"`);
+      console.log(`[GATEWAY] Countdown Timer: ${countdownTotal} seconds | Auto-Redirect: ${Boolean(config.autoRedirect)}`);
+      console.log(`[CAROUSEL] Rendered ${slides.length} slides with full HTML & image support.`);
+
       function updateCountdownUI() {
         countdownNumber.textContent = `${remaining}s`;
         if (timerHighlight) timerHighlight.textContent = remaining;
@@ -260,20 +270,26 @@
       }
 
       function triggerRedirect() {
-        console.log(`[Redirect] Redirecting to: ${finalDestination}`);
+        console.warn(`[REDIRECT NOW] Executing navigation to: ${finalDestination}`);
         window.location.href = finalDestination;
       }
 
       if (config.autoRedirect) {
         updateCountdownUI();
+        console.log(`[TIMER] Countdown started at ${countdownTotal} seconds.`);
         timerInterval = setInterval(() => {
           if (isPaused) return;
 
           remaining -= 1;
           updateCountdownUI();
 
+          if (remaining % 2 === 0 || remaining <= 3) {
+            console.log(`[TIMER] ${remaining}s remaining until redirect...`);
+          }
+
           if (remaining <= 0) {
             clearInterval(timerInterval);
+            console.log("[TIMER] Countdown expired. Triggering redirection.");
             triggerRedirect();
           }
         }, 1000);
@@ -281,6 +297,7 @@
 
       // Button Handlers
       document.getElementById("redirectNowBtn").addEventListener("click", () => {
+        console.log("[USER ACTION] 'Redirect Now' button clicked.");
         if (timerInterval) clearInterval(timerInterval);
         triggerRedirect();
       });
@@ -289,11 +306,13 @@
       pauseBtn.addEventListener("click", function () {
         isPaused = !isPaused;
         if (isPaused) {
+          console.log("[USER ACTION] Auto-redirect PAUSED by visitor.");
           this.textContent = "Resume Auto-Redirect";
           this.classList.add("btn-primary");
           this.classList.remove("btn-secondary");
           countdownNumber.textContent = "Paused";
         } else {
+          console.log(`[USER ACTION] Auto-redirect RESUMED. Resuming countdown at ${remaining}s.`);
           this.textContent = "Pause Auto-Redirect";
           this.classList.add("btn-secondary");
           this.classList.remove("btn-primary");

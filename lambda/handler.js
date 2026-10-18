@@ -4,7 +4,8 @@
  * NOTE FOR DEVELOPER:
  * You are writing the backend logic yourself!
  * This template demonstrates how to extract visitor IP, geolocation, and request metadata,
- * and provides the connection pooling pattern for MongoDB in a serverless environment.
+ * provides connection pooling for MongoDB, and includes structured console logging
+ * for easy observation in AWS CloudWatch and local testing.
  *
  * Runtime: Node.js 20.x or Node.js 22.x
  * Handler entry point: lambda/handler.handler
@@ -27,6 +28,8 @@
 // async function getDatabase() {
 //   if (cachedDb) return cachedDb;
 //   const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
+//   console.log("[MONGODB] Initializing new connection to MongoDB cluster...");
+//   const startTime = Date.now();
 //   const client = new MongoClient(uri, {
 //     maxPoolSize: 10,
 //     serverSelectionTimeoutMS: 3000
@@ -34,6 +37,7 @@
 //   await client.connect();
 //   cachedClient = client;
 //   cachedDb = client.db(process.env.MONGODB_DB_NAME || "faphouse3_analytics");
+//   console.log(`[MONGODB] Connected successfully in ${Date.now() - startTime}ms.`);
 //   return cachedDb;
 // }
 
@@ -45,27 +49,34 @@
  * @returns {Promise<import('../contracts/lambda-types').APIGatewayHttpApiV2Result>} HTTP API v2 response
  */
 export async function handler(event, context) {
+  const requestStartTime = Date.now();
+  const requestId = context?.awsRequestId || event.requestContext?.requestId || "local-req";
+
   // Prevent Lambda from waiting for MongoDB's background connection pool to close
   if (context) {
     context.callbackWaitsForEmptyEventLoop = false;
   }
 
-  console.log("[faphouse3-gateway] Incoming request event received.");
-
   // =========================================================================
   // STEP 1: Extract Visitor IP, Location, Device, and Request Details
   // =========================================================================
-  // 1. IP Address extraction:
-  //    - If behind Cloudflare: event.headers['cf-connecting-ip'] (True visitor IP)
-  //    - If behind standard proxy: event.headers['x-forwarded-for']?.split(',')[0].trim()
-  //    - Fallback: event.requestContext.http.sourceIp
-  const clientIp =
-    event.headers?.["cf-connecting-ip"] ||
-    event.headers?.["x-forwarded-for"]?.split(",")[0]?.trim() ||
-    event.requestContext?.http?.sourceIp ||
-    "127.0.0.1";
+  const httpMethod = event.requestContext?.http?.method || "GET";
+  const path = event.rawPath || "/";
+  const queryString = event.rawQueryString ? `?${event.rawQueryString}` : "";
 
-  // 2. Geolocation headers (provided automatically for free by Cloudflare / CloudFront):
+  // 1. IP Address extraction:
+  let ipSource = "direct-sourceIp";
+  let clientIp = event.requestContext?.http?.sourceIp || "127.0.0.1";
+
+  if (event.headers?.["cf-connecting-ip"]) {
+    clientIp = event.headers["cf-connecting-ip"];
+    ipSource = "cf-connecting-ip (Cloudflare True IP)";
+  } else if (event.headers?.["x-forwarded-for"]) {
+    clientIp = event.headers["x-forwarded-for"].split(",")[0].trim();
+    ipSource = "x-forwarded-for (Proxy Header)";
+  }
+
+  // 2. Geolocation headers:
   const country = event.headers?.["cf-ipcountry"] || event.headers?.["cloudfront-viewer-country"] || "UNKNOWN";
   const city = event.headers?.["cf-ipcity"] || "UNKNOWN";
 
@@ -73,11 +84,21 @@ export async function handler(event, context) {
   const userAgent = event.headers?.["user-agent"] || "unknown";
   const referer = event.headers?.["referer"] || "direct";
 
-  // 4. Ingress domain, Path, and Query parameters:
+  // 4. Ingress domain & target reconstruction:
   const domain = event.requestContext?.domainName || event.headers?.["host"] || "faphouse3.com";
-  const path = event.rawPath || "/";
-  const queryString = event.rawQueryString ? `?${event.rawQueryString}` : "";
-  const targetDestination = `${process.env.TARGET_DOMAIN || "https://faphouse2.com"}${path}${queryString}`;
+  const targetOrigin = process.env.TARGET_DOMAIN || "https://faphouse2.com";
+  const targetDestination = `${targetOrigin.replace(/\/$/, "")}${path}${queryString}`;
+
+  // =========================================================================
+  // STRUCTURED CONSOLE LOGS (CloudWatch & Local Observability)
+  // =========================================================================
+  console.log("----------------------------------------------------------------------");
+  console.log(`[REQUEST] ${httpMethod} ${domain}${path}${queryString} [ID: ${requestId}]`);
+  console.log(`[VISITOR] IP: ${clientIp} (Resolved via: ${ipSource})`);
+  console.log(`[GEO]     Country: ${country} | City: ${city}`);
+  console.log(`[REFERER] ${referer}`);
+  console.log(`[DEVICE]  ${userAgent.slice(0, 120)}${userAgent.length > 120 ? "..." : ""}`);
+  console.log(`[ROUTING] Target: ${targetDestination}`);
 
   // =========================================================================
   // STEP 2: Filter Asset Noise
@@ -87,6 +108,12 @@ export async function handler(event, context) {
     path.endsWith(".png") ||
     path.endsWith(".css") ||
     path.startsWith("/.well-known");
+
+  if (isStaticNoise) {
+    console.log(`[FILTER]  Skipping database tracking for static asset request: "${path}"`);
+  } else {
+    console.log(`[FILTER]  Valid pageview detected. Proceeding to visit tracking.`);
+  }
 
   // =========================================================================
   // STEP 3: Record to MongoDB (Visits Log + Aggregated Counters)
@@ -98,8 +125,11 @@ export async function handler(event, context) {
   // Example implementation pattern:
   // if (!isStaticNoise) {
   //   try {
+  //     const dbStartTime = Date.now();
   //     const db = await getDatabase();
   //     const today = new Date().toISOString().slice(0, 10);
+  //
+  //     console.log(`[MONGODB] Recording visit log for IP ${clientIp} (${country})...`);
   //
   //     // 3A. Insert granular visit audit log:
   //     await db.collection("visits").insertOne({
@@ -124,8 +154,11 @@ export async function handler(event, context) {
   //       },
   //       { upsert: true }
   //     );
+  //
+  //     console.log(`[MONGODB] Successfully stored visit & updated counter in ${Date.now() - dbStartTime}ms.`);
   //   } catch (dbErr) {
-  //     console.error("[WARN] MongoDB write failed, proceeding with redirect:", dbErr);
+  //     console.error("[MONGODB ERROR] Database operation failed:", dbErr.message);
+  //     console.warn("[MONGODB WARN] Continuing redirect to prevent user disruption.");
   //   }
   // }
 
@@ -133,6 +166,7 @@ export async function handler(event, context) {
   // STEP 4: Return Response (Direct 302 vs 10-Second HTML Notice)
   // =========================================================================
   // Mode A: Direct 302 Redirect
+  // console.log(`[RESPONSE] Returning HTTP 302 redirect to: ${targetDestination}`);
   // return {
   //   statusCode: 302,
   //   headers: {
@@ -141,7 +175,11 @@ export async function handler(event, context) {
   //   }
   // };
 
-  // Skeleton response for local development:
+  // Mode B: Skeleton response for development & testing
+  const duration = Date.now() - requestStartTime;
+  console.log(`[RESPONSE] Returning 200 OK preview (Execution time: ${duration}ms)`);
+  console.log("----------------------------------------------------------------------\n");
+
   return {
     statusCode: 200,
     headers: {
@@ -149,7 +187,8 @@ export async function handler(event, context) {
       "X-Ingress-Domain": domain,
       "X-Client-IP": clientIp,
       "X-Country": country,
-      "X-Redirect-Target": targetDestination
+      "X-Redirect-Target": targetDestination,
+      "X-Execution-Time": `${duration}ms`
     },
     body: JSON.stringify({
       message: "faphouse3.com -> faphouse2.com Traffic Gateway (MongoDB Ready)",
@@ -157,6 +196,7 @@ export async function handler(event, context) {
       trackingDetailsExtracted: {
         domain: domain,
         clientIp: clientIp,
+        ipSource: ipSource,
         country: country,
         city: city,
         userAgent: userAgent,
@@ -164,6 +204,7 @@ export async function handler(event, context) {
         path: path,
         targetDestination: targetDestination
       },
+      executionTimeMs: duration,
       nextSteps: [
         "Uncomment getDatabase() and the MongoDB insertOne / updateOne operations in Step 3",
         "Configure MONGODB_URI in your .env or Lambda environment variables",

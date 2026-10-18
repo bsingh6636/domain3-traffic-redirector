@@ -1,7 +1,8 @@
 /**
  * Zero-Dependency Local Demonstration Server
  *
- * Reads .env configuration and serves public/ files with dynamic config synchronization.
+ * Reads .env configuration and serves public/ files with dynamic config synchronization
+ * and structured console logging.
  *
  * Usage:
  *   npm run serve
@@ -56,6 +57,7 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+  const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "127.0.0.1";
 
   // Dynamic config endpoint that merges .env into client config
   if (parsedUrl.pathname === "/config.js") {
@@ -68,6 +70,8 @@ const server = http.createServer((req, res) => {
     } catch (e) {
       console.warn("[WARN] Could not parse SLIDES_JSON from .env, using default.");
     }
+
+    console.log(`[HTTP ${req.method}] 200 /config.js - Generated dynamic config with ${slides.length || 3} slides (Client IP: ${clientIp})`);
 
     const dynamicConfig = `
 window.REDIRECT_CONFIG = {
@@ -116,10 +120,12 @@ window.REDIRECT_CONFIG = {
 
     fs.readFile(filePath, (readErr, data) => {
       if (readErr) {
+        console.error(`[HTTP 500] Error reading ${filePath}:`, readErr.message);
         res.writeHead(500, { "Content-Type": "text/plain" });
         res.end("Internal Server Error");
         return;
       }
+      console.log(`[HTTP ${req.method}] 200 ${parsedUrl.pathname} [${contentType.split(";")[0]}] (Client IP: ${clientIp})`);
       res.writeHead(200, { "Content-Type": contentType });
       res.end(data);
     });
@@ -128,11 +134,11 @@ window.REDIRECT_CONFIG = {
 
 server.listen(PORT, () => {
   console.log(`\n======================================================`);
-  console.log(` FAPHOUSE 3 Traffic Redirector Demo Server`);
+  console.log(` [FAPHOUSE 3] Traffic Redirector Demo Server Running`);
   console.log(` URL: http://localhost:${PORT}`);
   console.log(` Ingress: faphouse3.com  -->  Target: https://faphouse2.com`);
-  console.log(` Countdown: 10 seconds`);
-  console.log(` Image Slider: Configured from .env`);
-  console.log(` Press Ctrl+C to stop.`);
+  console.log(` Countdown: ${envVars.COUNTDOWN_SECONDS || 10} seconds`);
+  console.log(` Storage Mode: MongoDB (URI: ${envVars.MONGODB_URI || "mongodb://localhost:27017"})`);
+  console.log(` Live request logging enabled. Press Ctrl+C to stop.`);
   console.log(`======================================================\n`);
 });
