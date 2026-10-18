@@ -1,7 +1,7 @@
 {
   "name": "domain3-traffic-redirector",
-  "version": "1.1.0",
-  "description": "Traffic tracking and 10-second redirect gateway for faphouse3.com to faphouse2.com with image slider UI",
+  "version": "1.2.0",
+  "description": "Traffic tracking and 10-second redirect gateway for faphouse3.com to faphouse2.com with MongoDB visit analytics",
   "type": "module",
   "main": "lambda/handler.js",
   "scripts": {
@@ -13,14 +13,14 @@
     "faphouse3",
     "faphouse2",
     "traffic-tracker",
+    "mongodb",
+    "ip-tracking",
     "redirect-gateway",
-    "image-carousel",
-    "dynamodb"
+    "image-carousel"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.750.0",
-    "@aws-sdk/lib-dynamodb": "^3.750.0"
+    "mongodb": "^6.12.0"
   }
 }

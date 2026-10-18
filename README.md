@@ -72,6 +72,8 @@ TARGET_DOMAIN=https://faphouse2.com
 INGRESS_DOMAIN=faphouse3.com
 COUNTDOWN_SECONDS=10
 AUTO_REDIRECT=true
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB_NAME=faphouse3_analytics
 SLIDES_JSON=[{"image":"https://example.com/banner1.jpg","title":"Promo Title","description":"Description with <b>HTML</b> support","badge":"Notice"}]
 ```
 
@@ -79,17 +81,28 @@ SLIDES_JSON=[{"image":"https://example.com/banner1.jpg","title":"Promo Title","d
 ```bash
 npm run test:local
 ```
-This runs `lambda/local-runner.js`, feeding mock event `contracts/mock-event-domain3-wrong.json` directly into your handler.
+This runs `lambda/local-runner.js`, feeding mock event `contracts/mock-event-domain3-wrong.json` directly into your handler. It tests IP extraction, Cloudflare headers, and destination construction.
 
 ---
 
-## 🛠️ Implementing the Backend Yourself
+## 🛠️ Implementing the Backend Yourself (MongoDB Edition)
 
 Open [`lambda/handler.js`](lambda/handler.js) where step-by-step TODO guidance is provided:
-1. **Verify Ingress Domain**: Read `event.requestContext.domainName` or `event.headers.host`.
+1. **Extract IP & Metadata**: Extract true client IP (`cf-connecting-ip`, `x-forwarded-for`, `sourceIp`), country, city, and User-Agent.
 2. **Filter Noise**: Check `event.rawPath` to ignore favicon/assets.
-3. **Atomic Counting**: Call DynamoDB `UpdateCommand` with `ADD visitCount :inc` for `faphouse3.com`.
+3. **Record to MongoDB**:
+   - Insert granular log into `visits` collection (`ip`, `country`, `userAgent`, `path`, `createdAt`).
+   - Atomically increment aggregated counter in `stats` collection (`$inc: { totalVisits: 1 }`).
 4. **Target Destination**: Reconstruct `https://faphouse2.com${path}${queryString}`.
-5. **Return Response**: Serve the HTML page or return an HTTP 302 redirect.
+5. **Return Response**: Serve the HTML page with image carousel or return an HTTP 302 redirect.
 
-Review [`docs/04-lambda-developer-guide.md`](docs/04-lambda-developer-guide.md) for detailed code snippets and SDK patterns.
+---
+
+## 📖 Documentation Index
+
+- [01. Empirical Domain Research](docs/01-domain-research.md)
+- [02. Architecture Design (`faphouse3.com` &rarr; `faphouse2.com`)](docs/02-architecture-design.md)
+- [03. MongoDB Visitor & IP Tracking Guide](docs/03-mongodb-tracking-guide.md)
+- [04. Lambda Developer Guide](docs/04-lambda-developer-guide.md)
+- [05. AWS Setup & DNS Routing](docs/05-aws-setup-and-dns.md)
+

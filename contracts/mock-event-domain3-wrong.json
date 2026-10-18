@@ -7,8 +7,13 @@
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
     "accept-encoding": "gzip, deflate, br",
     "accept-language": "en-US,en;q=0.9",
+    "cf-connecting-ip": "103.21.244.15",
+    "cf-ipcountry": "US",
+    "cf-ipcity": "San Jose",
+    "cf-ray": "8d39f201ab347e-SJC",
     "content-length": "0",
     "host": "faphouse3.com",
+    "referer": "https://google.com/search?q=faphouse3",
     "sec-ch-ua": "\"Google Chrome\";v=\"129\", \"Not=A?Brand\";v=\"8\"",
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-platform": "\"Windows\"",
@@ -18,8 +23,7 @@
     "sec-fetch-user": "?1",
     "upgrade-insecure-requests": "1",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-    "x-amzn-trace-id": "Root=1-6712bb9f-5c24a9e525a74e5033878b66",
-    "x-forwarded-for": "198.51.100.42",
+    "x-forwarded-for": "103.21.244.15, 172.68.22.10",
     "x-forwarded-port": "443",
     "x-forwarded-proto": "https"
   },
@@ -36,14 +40,14 @@
       "method": "GET",
       "path": "/watch/sample-video",
       "protocol": "HTTP/1.1",
-      "sourceIp": "198.51.100.42",
+      "sourceIp": "103.21.244.15",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
     },
     "requestId": "JK8t4G1vIAMEU7Q=",
     "routeKey": "$default",
     "stage": "$default",
-    "time": "19/Oct/2026:02:40:00 +0000",
-    "timeEpoch": 1792377600000
+    "time": "19/Oct/2026:03:30:00 +0000",
+    "timeEpoch": 1792380600000
   },
   "isBase64Encoded": false
 }
