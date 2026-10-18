@@ -1,10 +1,11 @@
 /**
- * AWS Lambda Handler Template: Multi-Domain Traffic Tracker & Router
+ * AWS Lambda Handler Template: faphouse3.com Traffic Tracker & Redirector
  *
  * NOTE FOR DEVELOPER:
- * You are writing the implementation logic yourself!
+ * You are writing the backend implementation yourself!
  * This template provides the structure, signatures, event contracts,
- * and step-by-step guidance so you can learn how AWS Lambda handles multi-domain traffic.
+ * and step-by-step guidance so you can learn how AWS Lambda handles traffic
+ * on faphouse3.com and redirects visitors to faphouse2.com.
  *
  * Runtime: Node.js 20.x or Node.js 22.x
  * Handler entry point: lambda/handler.handler
@@ -20,108 +21,102 @@
 // const docClient = DynamoDBDocumentClient.from(ddbClient);
 
 /**
- * Main Lambda Handler function invoked by API Gateway (HTTP API v2 payload format).
+ * Main Lambda Handler invoked by API Gateway (HTTP API v2 payload format) for faphouse3.com.
  *
  * @param {import('../contracts/lambda-types').APIGatewayHttpApiV2Event} event - The API Gateway v2 event
  * @param {object} context - Lambda runtime context
  * @returns {Promise<import('../contracts/lambda-types').APIGatewayHttpApiV2Result>} HTTP API v2 response
  */
 export async function handler(event, context) {
-  console.log("Received event:", JSON.stringify(event, null, 2));
+  console.log("[faphouse3-gateway] Received event:", JSON.stringify(event, null, 2));
 
   // =========================================================================
-  // STEP 1: Identify the Incoming Domain and Path
+  // STEP 1: Verify Ingress Domain and Extract Path
   // =========================================================================
-  // API Gateway HTTP API populates event.requestContext.domainName with the exact
-  // domain requested by the user's browser (e.g. "faphouse3.com", "faphouse.com", "faphouse2.com").
-  // Fallback: event.headers?.['host']
-  //
-  // YOUR TASK:
-  // - Extract the domain name.
-  // - Extract the rawPath (e.g. "/watch/sample-video") and rawQueryString.
-  const rawDomain = event.requestContext?.domainName || event.headers?.["host"] || "unknown-domain";
-  const domain = rawDomain.toLowerCase().replace(/^www\./, "");
+  // In single-domain mode, all incoming traffic is from faphouse3.com.
+  // API Gateway populates event.requestContext.domainName or event.headers.host.
+  const domain = event.requestContext?.domainName || event.headers?.["host"] || "faphouse3.com";
   const path = event.rawPath || "/";
   const queryString = event.rawQueryString ? `?${event.rawQueryString}` : "";
 
   // =========================================================================
   // STEP 2: Filter Visit Types (Page Views vs Noise)
   // =========================================================================
-  // Browsers often request "/favicon.ico", "/robots.txt", or static assets.
-  // Decide whether you want to count every request or only top-level navigation:
-  // e.g.: const isAsset = path.endsWith(".ico") || path.endsWith(".png") || path.endsWith(".css");
-  //
-  // YOUR TASK:
-  // - Determine if this request should increment your analytics counter.
+  // Ignore favicon or asset requests so your visitor metrics remain clean:
+  const isStaticNoise = path.endsWith(".ico") || path.endsWith(".png") || path.startsWith("/.well-known");
 
   // =========================================================================
-  // STEP 3: Record Visit to Storage (e.g. DynamoDB)
+  // STEP 3: Record Visit to DynamoDB (Atomic Counter)
   // =========================================================================
-  // Recommended DynamoDB UpdateCommand pattern for atomic increment:
+  // Record cumulative visits and daily counts for faphouse3.com:
   //
-  // const command = new UpdateCommand({
-  //   TableName: process.env.TRACKING_TABLE_NAME || "DomainTrafficStats",
-  //   Key: {
-  //     domain: domain,
-  //     metric: "TOTAL_VISITS" // Or `DATE#${new Date().toISOString().slice(0, 10)}`
-  //   },
-  //   UpdateExpression: "ADD visitCount :inc SET lastVisitedAt = :ts",
-  //   ExpressionAttributeValues: {
-  //     ":inc": 1,
-  //     ":ts": new Date().toISOString()
+  // if (!isStaticNoise) {
+  //   const today = new Date().toISOString().slice(0, 10); // "2026-10-19"
+  //   const command = new UpdateCommand({
+  //     TableName: process.env.TRACKING_TABLE_NAME || "DomainTrafficStats",
+  //     Key: {
+  //       domain: "faphouse3.com",
+  //       metric: `DATE#${today}` // or "TOTAL"
+  //     },
+  //     UpdateExpression: "ADD visitCount :inc SET lastVisitedAt = :ts",
+  //     ExpressionAttributeValues: {
+  //       ":inc": 1,
+  //       ":ts": new Date().toISOString()
+  //     }
+  //   });
+  //   try {
+  //     await docClient.send(command);
+  //   } catch (dbErr) {
+  //     console.error("[WARN] DynamoDB write failed, continuing redirect:", dbErr);
   //   }
-  // });
-  // await docClient.send(command);
-  //
-  // YOUR TASK:
-  // - Implement your database persistence call here.
-  // - Catch errors gracefully so a database outage doesn't block redirection.
+  // }
 
   // =========================================================================
-  // STEP 4: Determine Routing / Redirect Action
+  // STEP 4: Construct Target Destination on faphouse2.com
   // =========================================================================
-  // For this project:
-  // - "faphouse3.com" is the new domain under demonstration.
-  //   If a user visits faphouse3.com, you can either:
-  //   A) Return an HTTP 302/301 redirect directly with a "Location" header.
-  //   B) Return HTTP 200 with an HTML landing page (e.g. "You've reached the wrong domain. Redirecting...").
-  //
-  // YOUR TASK:
-  // - Define your routing table or conditional branch.
-  // - For demonstration: target domain is "https://faphouse2.com".
-  const targetDestination = `https://faphouse2.com${path}${queryString}`;
+  // All traffic from faphouse3.com forwards to faphouse2.com with full path and query preservation:
+  const targetOrigin = process.env.TARGET_DOMAIN || "https://faphouse2.com";
+  const destinationUrl = `${targetOrigin.replace(/\/$/, "")}${path}${queryString}`;
 
   // =========================================================================
-  // STEP 5: Construct and Return the HTTP Response
+  // STEP 5: Choose Response Mode (Direct 302 Redirect vs Branded HTML Notice)
   // =========================================================================
-  // Example A: Direct HTTP 302 Redirect
+  // Mode A: Direct 302 Redirect (instant, headless)
   // return {
   //   statusCode: 302,
   //   headers: {
-  //     "Location": targetDestination,
+  //     "Location": destinationUrl,
   //     "Cache-Control": "no-cache, no-store, must-revalidate"
   //   }
   // };
   //
-  // Example B: Intermediate HTML warning page
-  // (You can read public/index.html or return an inline HTML template)
+  // Mode B: Branded HTML Notice (10-second countdown with image slider)
+  // return {
+  //   statusCode: 200,
+  //   headers: {
+  //     "Content-Type": "text/html; charset=utf-8"
+  //   },
+  //   body: htmlTemplate
+  // };
 
   // SKELETON PLACEHOLDER RESPONSE (Update this with your own logic):
   return {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
-      "X-Processed-Domain": domain
+      "X-Ingress-Domain": domain,
+      "X-Redirect-Target": destinationUrl
     },
     body: JSON.stringify({
-      message: "Multi-Domain Traffic Gateway Skeleton",
-      status: "ready_for_implementation",
-      incomingDomain: domain,
-      targetDestination: targetDestination,
-      hints: [
-        "Review docs/04-lambda-developer-guide.md for implementation steps",
-        "Configure DynamoDB UpdateCommand in Step 3",
-        "Return either 302 redirect or HTML demonstration in Step 5"
+      message: "faphouse3.com -> faphouse2.com Traffic Gateway Skeleton",
+      status: "ready_for_developer_implementation",
+      ingressDomain: domain,
+      targetUrl: destinationUrl,
+      countdownSeconds: 10,
+      nextSteps: [
+        "Uncomment and configure DynamoDB UpdateCommand in Step 3",
+        "Choose between 302 redirect or serving the public/index.html UI in Step 5",
+        "Test locally with 'npm run test:local'"
       ]
     })
   };

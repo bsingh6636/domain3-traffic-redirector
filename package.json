@@ -1,7 +1,7 @@
 {
-  "name": "multi-domain-traffic-gateway",
-  "version": "1.0.0",
-  "description": "Lightweight multi-domain tracking and redirect gateway architecture for AWS Lambda & DynamoDB",
+  "name": "domain3-traffic-redirector",
+  "version": "1.1.0",
+  "description": "Traffic tracking and 10-second redirect gateway for faphouse3.com to faphouse2.com with image slider UI",
   "type": "module",
   "main": "lambda/handler.js",
   "scripts": {
@@ -10,11 +10,12 @@
   },
   "keywords": [
     "aws-lambda",
-    "api-gateway",
-    "dynamodb",
-    "domain-tracking",
-    "redirect-system",
-    "multi-domain"
+    "faphouse3",
+    "faphouse2",
+    "traffic-tracker",
+    "redirect-gateway",
+    "image-carousel",
+    "dynamodb"
   ],
   "author": "",
   "license": "MIT",

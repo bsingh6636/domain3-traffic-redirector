@@ -1,87 +1,95 @@
-# Multi-Domain Traffic Gateway & Visit Tracker
+# Domain 3 Traffic Redirector (`faphouse3.com` &rarr; `faphouse2.com`)
 
-A lightweight, serverless architecture for tracking domain visits and managing redirects across multiple domains (`faphouse.com`, `faphouse2.com`, and `faphouse3.com`) using a single unified backend.
+A lightweight, serverless traffic gateway and visitor tracking service for **`faphouse3.com`** that displays an intermediate branded redirect notice with an **image slider carousel** and forwards visitors to **`faphouse2.com`** after a **10-second countdown**.
 
 ---
 
-## 📌 Repository Overview
+## 🎨 UI & Theme Alignment
 
-This repository is structured so that **you build the AWS Lambda backend yourself**, using detailed architecture specifications, type contracts, and local simulation tools.
+The user interface has been modeled directly after `faphouse2.com`:
+- **Dark Aesthetic**: Background `#000000`, card backgrounds `#121620`, borders `#202634`.
+- **Authentic Amber Accent**: `#f4bb2e` gold/amber CTA buttons with hover `#e3a200` and dark `#222222` text.
+- **FAPHOUSE 3 Branding**: "FAP" in crisp white, "HOUSE" in amber, and an amber "3" badge.
+- **10-Second Countdown**: Visual progress bar and pill display counting down from 10s to 0s.
+- **Image Slider Carousel**:
+  - Accepts an array of image links.
+  - Supports title, subtitle, and rich HTML descriptions / links.
+  - Previous / Next navigation arrows and dot indicators.
+  - Auto-rotates every 3.5 seconds.
+  - Configurable via `.env` (`SLIDES_JSON`) or `public/config.js`.
 
-### Directory Structure
+---
+
+## 📁 Repository Structure
 
 ```
-multi-domain-traffic-gateway/
+domain3-traffic-redirector/
+├── .env                              # Environment variables (countdown, target domain, image slides)
+├── .env.example                      # Template environment variables
+├── package.json                      # Node.js project configuration (v1.1.0)
 ├── contracts/
 │   ├── lambda-types.d.ts             # TypeScript definitions for HTTP API v2 & tracking records
 │   ├── mock-event-domain1.json       # Simulated payload from faphouse.com
 │   ├── mock-event-domain2.json       # Simulated payload from faphouse2.com
-│   └── mock-event-domain3-wrong.json # Simulated payload from faphouse3.com (wrong domain)
+│   └── mock-event-domain3-wrong.json # Simulated payload from faphouse3.com (target event)
 ├── docs/
-│   ├── 01-domain-research.md         # Empirical DNS, NS, & live probe findings
-│   ├── 02-architecture-design.md     # Single-backend multi-domain architecture & request flow
-│   ├── 03-visit-tracking-guide.md    # Requests vs page views vs uniques, DynamoDB atomic schema
-│   ├── 04-lambda-developer-guide.md  # Step-by-step handbook to implement the Node.js Lambda
-│   └── 05-aws-setup-and-dns.md       # AWS provisioning & DNS routing instructions (no deploy yet)
+│   ├── 01-domain-research.md         # Live DNS, NS, & live probe findings for faphouse domains
+│   ├── 02-architecture-design.md     # Single-backend architecture & request flow
+│   ├── 03-visit-tracking-guide.md    # DynamoDB atomic counter guide and metric comparison
+│   ├── 04-lambda-developer-guide.md  # Step-by-step developer handbook for writing the handler
+│   └── 05-aws-setup-and-dns.md       # AWS setup & Cloudflare DNS guide (no deploy yet)
 ├── lambda/
-│   ├── handler.js                    # Lambda handler skeleton with structured TODOs
+│   ├── handler.js                    # Lambda skeleton with structured TODOs for your implementation
 │   └── local-runner.js               # Zero-AWS local test harness
 ├── public/
-│   ├── index.html                    # Responsive wrong-domain demonstration page
-│   ├── config.js                     # Configurable redirect settings (target URL, countdown)
-│   └── style.css                     # Modern UI styling
-├── scripts/
-│   └── serve-demo.js                 # Zero-dependency local web server for the demo page
-├── package.json
-└── README.md
+│   ├── index.html                    # Themed 10-second redirect page with image carousel
+│   ├── config.js                     # Client-side configuration fallback
+│   └── style.css                     # Dark & amber CSS modeled after faphouse2.com
+└── scripts/
+    └── serve-demo.js                 # Zero-dependency local web server syncing .env to UI
 ```
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🚀 Quick Start
 
-### 1. Test the Lambda Handler Locally
-You do not need an AWS account or deployment to start developing:
-```bash
-npm run test:local
-```
-This runs `lambda/local-runner.js`, which passes `contracts/mock-event-domain3-wrong.json` into `lambda/handler.js` and outputs the result.
-
-### 2. Preview the HTML Redirect Demonstration
-To test the user-facing redirect page:
+### 1. Preview the Themed 10-Second Redirect & Image Slider UI
+Start the local demonstration server:
 ```bash
 npm run serve
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-- Displays: *"You've reached the wrong domain. Redirecting you to faphouse2.com."*
-- Includes an interactive countdown timer, manual redirect button, and auto-redirect pause option.
-- Configurable via `public/config.js`.
+Open **[http://localhost:3000](http://localhost:3000)** in your browser:
+- You will see the **FAPHOUSE 3** header bar.
+- The notice: *"You've reached the wrong domain. Redirecting you to faphouse2.com in 10 seconds."*
+- The animated 10s progress bar and interactive countdown pill.
+- The responsive image carousel rendering slides from your `.env` with full HTML support.
+- "Redirect Now" and "Pause Auto-Redirect" buttons.
+
+### 2. Configure Image Slides and Text
+Open `.env` in the root folder to update slides, timer, or destination:
+```env
+TARGET_DOMAIN=https://faphouse2.com
+INGRESS_DOMAIN=faphouse3.com
+COUNTDOWN_SECONDS=10
+AUTO_REDIRECT=true
+SLIDES_JSON=[{"image":"https://example.com/banner1.jpg","title":"Promo Title","description":"Description with <b>HTML</b> support","badge":"Notice"}]
+```
+
+### 3. Test Your Lambda Handler Locally
+```bash
+npm run test:local
+```
+This runs `lambda/local-runner.js`, feeding mock event `contracts/mock-event-domain3-wrong.json` directly into your handler.
 
 ---
 
-## 🧠 Key Design Decisions
+## 🛠️ Implementing the Backend Yourself
 
-1. **Single Backend for 3 Domains**:
-   Instead of 3 servers or 3 Lambdas, Amazon API Gateway (HTTP API v2) uses **Custom Domain Names** to map `faphouse.com`, `faphouse2.com`, and `faphouse3.com` to the **same stage** (`$default`).
-   Your Lambda inspects `event.requestContext.domainName` to immediately identify which domain was requested.
+Open [`lambda/handler.js`](lambda/handler.js) where step-by-step TODO guidance is provided:
+1. **Verify Ingress Domain**: Read `event.requestContext.domainName` or `event.headers.host`.
+2. **Filter Noise**: Check `event.rawPath` to ignore favicon/assets.
+3. **Atomic Counting**: Call DynamoDB `UpdateCommand` with `ADD visitCount :inc` for `faphouse3.com`.
+4. **Target Destination**: Reconstruct `https://faphouse2.com${path}${queryString}`.
+5. **Return Response**: Serve the HTML page or return an HTTP 302 redirect.
 
-2. **Atomic Visit Counting in DynamoDB**:
-   Visits are recorded using DynamoDB `UpdateItem` with `ADD visitCount :inc`. This guarantees accurate counts even during traffic spikes without race conditions.
-
-3. **Total Requests vs. Page Visits vs. Unique Visitors**:
-   - *Total Requests*: Counts all network hits (noisy, includes `.ico`, `.css`).
-   - *Page Visits*: Filters asset paths and counts user navigation events (**recommended v1 metric**).
-   - *Unique Visitors*: Differentiates distinct devices via client cookie or daily salted IP/UA hash.
-
-4. **Zero AWS Deployment Yet**:
-   All AWS provisioning commands and configurations are documented in `docs/05-aws-setup-and-dns.md`, ready for deployment when backend code is completed.
-
----
-
-## 📖 Documentation Index
-
-- [01. Domain Research & Empirical Probing](docs/01-domain-research.md)
-- [02. Architecture Design & Request Flow](docs/02-architecture-design.md)
-- [03. Visit Tracking Strategy & Storage Model](docs/03-visit-tracking-guide.md)
-- [04. Lambda Developer Guide](docs/04-lambda-developer-guide.md)
-- [05. AWS Setup & DNS Routing](docs/05-aws-setup-and-dns.md)
+Review [`docs/04-lambda-developer-guide.md`](docs/04-lambda-developer-guide.md) for detailed code snippets and SDK patterns.
