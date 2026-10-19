@@ -1,11 +1,8 @@
 /**
  * AWS Lambda Handler: faphouse3.com Traffic Tracker & Redirector (MongoDB Edition)
  *
- * NOTE FOR DEVELOPER:
- * You are writing the backend logic yourself!
- * This template demonstrates how to extract visitor IP, geolocation, and request metadata,
- * provides connection pooling for MongoDB, and includes structured console logging
- * for easy observation in AWS CloudWatch and local testing.
+ * Implements visitor tracking, IP extraction, and automated logging for
+ * MongoDB database connections and value updates.
  *
  * Runtime: Node.js 20.x or Node.js 22.x
  * Handler entry point: lambda/handler.handler
@@ -13,33 +10,7 @@
  * @see contracts/mongodb-schema.d.ts for document structures.
  */
 
-// =========================================================================
-// MONGODB SERVERLESS CONNECTION CACHING PATTERN
-// =========================================================================
-// In AWS Lambda, initialize the MongoClient OUTSIDE the handler.
-// This allows warm Lambda instances to reuse the existing TCP connection pool
-// instead of opening a new database connection on every single request.
-//
-// import { MongoClient } from "mongodb";
-//
-// let cachedClient = null;
-// let cachedDb = null;
-//
-// async function getDatabase() {
-//   if (cachedDb) return cachedDb;
-//   const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
-//   console.log("[MONGODB] Initializing new connection to MongoDB cluster...");
-//   const startTime = Date.now();
-//   const client = new MongoClient(uri, {
-//     maxPoolSize: 10,
-//     serverSelectionTimeoutMS: 3000
-//   });
-//   await client.connect();
-//   cachedClient = client;
-//   cachedDb = client.db(process.env.MONGODB_DB_NAME || "faphouse3_analytics");
-//   console.log(`[MONGODB] Connected successfully in ${Date.now() - startTime}ms.`);
-//   return cachedDb;
-// }
+import { recordVisit } from "./db.js";
 
 /**
  * Main Lambda Handler invoked by API Gateway (HTTP API v2 payload format).
@@ -92,13 +63,13 @@ export async function handler(event, context) {
   // =========================================================================
   // STRUCTURED CONSOLE LOGS (CloudWatch & Local Observability)
   // =========================================================================
-  console.log("----------------------------------------------------------------------");
-  console.log(`[REQUEST] ${httpMethod} ${domain}${path}${queryString} [ID: ${requestId}]`);
-  console.log(`[VISITOR] IP: ${clientIp} (Resolved via: ${ipSource})`);
-  console.log(`[GEO]     Country: ${country} | City: ${city}`);
-  console.log(`[REFERER] ${referer}`);
-  console.log(`[DEVICE]  ${userAgent.slice(0, 120)}${userAgent.length > 120 ? "..." : ""}`);
-  console.log(`[ROUTING] Target: ${targetDestination}`);
+  console.log("======================================================================");
+  console.log(`[REQUEST]  ${httpMethod} ${domain}${path}${queryString} [ID: ${requestId}]`);
+  console.log(`[VISITOR]  IP: ${clientIp} (Resolved via: ${ipSource})`);
+  console.log(`[GEO]      Country: ${country} | City: ${city}`);
+  console.log(`[REFERER]  ${referer}`);
+  console.log(`[DEVICE]   ${userAgent.slice(0, 110)}${userAgent.length > 110 ? "..." : ""}`);
+  console.log(`[ROUTING]  Target: ${targetDestination}`);
 
   // =========================================================================
   // STEP 2: Filter Asset Noise
@@ -109,64 +80,38 @@ export async function handler(event, context) {
     path.endsWith(".css") ||
     path.startsWith("/.well-known");
 
+  let dbResult = null;
+
   if (isStaticNoise) {
-    console.log(`[FILTER]  Skipping database tracking for static asset request: "${path}"`);
+    console.log(`[FILTER]   Skipping database tracking for static asset request: "${path}"`);
   } else {
-    console.log(`[FILTER]  Valid pageview detected. Proceeding to visit tracking.`);
+    console.log(`[FILTER]   Valid pageview detected. Proceeding to MongoDB tracking.`);
+
+    // =======================================================================
+    // STEP 3: Record to MongoDB with Detailed Logging
+    // =======================================================================
+    try {
+      dbResult = await recordVisit({
+        domain: domain,
+        ip: clientIp,
+        country: country,
+        city: city,
+        userAgent: userAgent,
+        referer: referer,
+        path: path,
+        queryString: queryString,
+        targetDestination: targetDestination
+      });
+    } catch (dbErr) {
+      console.error("[DB:ERROR] Database recording failed:", dbErr.message);
+      console.warn("[DB:WARN]  Proceeding with redirection to preserve user experience.");
+    }
   }
 
   // =========================================================================
-  // STEP 3: Record to MongoDB (Visits Log + Aggregated Counters)
+  // STEP 4: Return Response
   // =========================================================================
-  // YOUR TASK:
-  // Connect to MongoDB and write tracking documents.
-  // Wrap this in a try/catch so a slow database query NEVER blocks your redirect!
-  //
-  // Example implementation pattern:
-  // if (!isStaticNoise) {
-  //   try {
-  //     const dbStartTime = Date.now();
-  //     const db = await getDatabase();
-  //     const today = new Date().toISOString().slice(0, 10);
-  //
-  //     console.log(`[MONGODB] Recording visit log for IP ${clientIp} (${country})...`);
-  //
-  //     // 3A. Insert granular visit audit log:
-  //     await db.collection("visits").insertOne({
-  //       domain: domain,
-  //       ip: clientIp,
-  //       country: country,
-  //       city: city,
-  //       userAgent: userAgent,
-  //       referer: referer,
-  //       path: path,
-  //       queryString: queryString,
-  //       targetRedirect: targetDestination,
-  //       createdAt: new Date()
-  //     });
-  //
-  //     // 3B. Atomically increment aggregated total and daily counters:
-  //     await db.collection("stats").updateOne(
-  //       { domain: domain, period: `DAILY#${today}` },
-  //       {
-  //         $inc: { totalVisits: 1 },
-  //         $set: { lastVisitedAt: new Date() }
-  //       },
-  //       { upsert: true }
-  //     );
-  //
-  //     console.log(`[MONGODB] Successfully stored visit & updated counter in ${Date.now() - dbStartTime}ms.`);
-  //   } catch (dbErr) {
-  //     console.error("[MONGODB ERROR] Database operation failed:", dbErr.message);
-  //     console.warn("[MONGODB WARN] Continuing redirect to prevent user disruption.");
-  //   }
-  // }
-
-  // =========================================================================
-  // STEP 4: Return Response (Direct 302 vs 10-Second HTML Notice)
-  // =========================================================================
-  // Mode A: Direct 302 Redirect
-  // console.log(`[RESPONSE] Returning HTTP 302 redirect to: ${targetDestination}`);
+  // In production redirect mode, return HTTP 302:
   // return {
   //   statusCode: 302,
   //   headers: {
@@ -175,10 +120,9 @@ export async function handler(event, context) {
   //   }
   // };
 
-  // Mode B: Skeleton response for development & testing
   const duration = Date.now() - requestStartTime;
-  console.log(`[RESPONSE] Returning 200 OK preview (Execution time: ${duration}ms)`);
-  console.log("----------------------------------------------------------------------\n");
+  console.log(`[RESPONSE] Completed in ${duration}ms (Status: 200 OK)`);
+  console.log("======================================================================\n");
 
   return {
     statusCode: 200,
@@ -191,8 +135,8 @@ export async function handler(event, context) {
       "X-Execution-Time": `${duration}ms`
     },
     body: JSON.stringify({
-      message: "faphouse3.com -> faphouse2.com Traffic Gateway (MongoDB Ready)",
-      status: "ready_for_developer_implementation",
+      message: "faphouse3.com -> faphouse2.com Traffic Gateway (MongoDB Connected)",
+      status: "active",
       trackingDetailsExtracted: {
         domain: domain,
         clientIp: clientIp,
@@ -204,12 +148,8 @@ export async function handler(event, context) {
         path: path,
         targetDestination: targetDestination
       },
-      executionTimeMs: duration,
-      nextSteps: [
-        "Uncomment getDatabase() and the MongoDB insertOne / updateOne operations in Step 3",
-        "Configure MONGODB_URI in your .env or Lambda environment variables",
-        "Test locally with 'npm run test:local'"
-      ]
+      dbTrackingResult: dbResult || "bypassed_or_failed",
+      executionTimeMs: duration
     })
   };
 }

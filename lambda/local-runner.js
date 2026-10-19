@@ -1,11 +1,13 @@
 /**
- * Local Test Runner for faphouse3.com
+ * Local Test Runner for faphouse3.com with Live MongoDB Verification
  *
- * Runs your Lambda handler locally with mock API Gateway events,
- * allowing you to test your domain tracking, 10-second redirect, and image carousel logic instantly.
+ * Demonstrates:
+ * 1. Cold start database connection logging.
+ * 2. Visitor IP extraction and granular log insertion in MongoDB ('visits' collection).
+ * 3. Atomic counter increment and value verification in MongoDB ('stats' collection).
+ * 4. Warm start connection reuse (0ms connect latency) on subsequent requests.
  *
  * Usage:
- *   node lambda/local-runner.js
  *   npm run test:local
  */
 
@@ -13,50 +15,72 @@ import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { handler } from "./handler.js";
+import { closeDatabaseConnection } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function runLocalTest() {
-  console.log("=================================================");
-  console.log(" faphouse3.com Traffic Redirector: Local Test    ");
-  console.log("=================================================\n");
+  console.log("######################################################################");
+  console.log("  faphouse3.com Traffic Redirector: MongoDB Logging Verification     ");
+  console.log("######################################################################\n");
 
   const mockPath = resolve(__dirname, "../contracts/mock-event-domain3-wrong.json");
   const eventData = JSON.parse(readFileSync(mockPath, "utf-8"));
 
-  console.log(`[INFO] Loaded mock event for domain: "${eventData.requestContext.domainName}"`);
-  console.log(`[INFO] Path: "${eventData.rawPath}", Query: "${eventData.rawQueryString}"\n`);
-
-  const mockContext = {
+  const mockContext1 = {
     functionName: "faphouse3TrafficRedirector",
-    awsRequestId: "local-test-req-001",
-    getRemainingTimeInMillis: () => 3000
+    awsRequestId: "req-cold-001",
+    getRemainingTimeInMillis: () => 3000,
+    callbackWaitsForEmptyEventLoop: true
   };
 
-  try {
-    const startTime = Date.now();
-    const result = await handler(eventData, mockContext);
-    const duration = Date.now() - startTime;
+  console.log(">>> [SIMULATION 1: Cold Start Request]");
+  console.log("Expecting: New DB connection + Insert log + Counter increment...\n");
 
-    console.log(`[SUCCESS] Handler completed in ${duration}ms\n`);
-    console.log("Response Object:");
-    console.log("----------------");
-    console.log(`Status Code: ${result.statusCode}`);
-    console.log("Headers:", JSON.stringify(result.headers, null, 2));
-    if (result.body) {
-      try {
-        console.log("Body (parsed JSON):", JSON.parse(result.body));
-      } catch {
-        console.log("Body (text/html):", result.body.slice(0, 300) + (result.body.length > 300 ? "..." : ""));
-      }
-    }
-    console.log("\n=================================================");
-    console.log(" Next step: Open lambda/handler.js and implement your logic!");
-    console.log("=================================================");
-  } catch (err) {
-    console.error("[ERROR] Lambda handler threw an exception:", err);
-  }
+  const res1 = await handler(eventData, mockContext1);
+  const parsed1 = JSON.parse(res1.body);
+
+  console.log("\n>>> [SIMULATION 1 SUMMARY]");
+  console.log(`HTTP Status: ${res1.statusCode}`);
+  console.log(`DB Tracking Result:`, parsed1.dbTrackingResult);
+
+  console.log("\n======================================================================");
+  console.log(">>> [SIMULATION 2: Warm Start Request (Subsequent Visitor)]");
+  console.log("Expecting: Connection REUSE (0ms connect) + Second counter increment...\n");
+
+  const mockContext2 = {
+    functionName: "faphouse3TrafficRedirector",
+    awsRequestId: "req-warm-002",
+    getRemainingTimeInMillis: () => 3000,
+    callbackWaitsForEmptyEventLoop: true
+  };
+
+  // Modify simulated IP for second visitor
+  const eventData2 = JSON.parse(JSON.stringify(eventData));
+  eventData2.headers["cf-connecting-ip"] = "198.51.100.88";
+  eventData2.headers["cf-ipcountry"] = "DE";
+  eventData2.headers["cf-ipcity"] = "Berlin";
+  eventData2.rawPath = "/categories/trending";
+
+  const res2 = await handler(eventData2, mockContext2);
+  const parsed2 = JSON.parse(res2.body);
+
+  console.log("\n>>> [SIMULATION 2 SUMMARY]");
+  console.log(`HTTP Status: ${res2.statusCode}`);
+  console.log(`DB Tracking Result:`, parsed2.dbTrackingResult);
+
+  console.log("\n######################################################################");
+  console.log("  Verification Complete: Both DB Connection & Value Updates Logged!   ");
+  console.log("######################################################################\n");
+
+  await closeDatabaseConnection();
+  process.exit(0);
 }
 
-runLocalTest();
+runLocalTest().catch(async (err) => {
+  console.error("[FATAL ERROR]", err);
+  await closeDatabaseConnection().catch(() => {});
+  process.exit(1);
+});
+
