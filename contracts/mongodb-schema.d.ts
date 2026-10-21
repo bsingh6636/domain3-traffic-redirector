@@ -13,6 +13,9 @@ import { ObjectId } from "mongodb";
 export interface VisitLogDocument {
   _id?: ObjectId;
   domain: string;              // "faphouse3.com"
+  visitorId?: string;          // Persistent visitor tracking ID (cookie / localStorage)
+  isReturning?: boolean;       // True if visitor has visited before, false if new
+  visitCount?: number;         // Cumulative visits from this visitor
   ip: string;                  // Client IP address (from CF-Connecting-IP or sourceIp)
   userAgent: string;           // Browser & device user agent
   path: string;                // Requested path (e.g. "/watch/12345")
@@ -36,6 +39,8 @@ export interface DomainStatsDocument {
   domain: string;              // "faphouse3.com"
   period: "TOTAL" | string;    // "TOTAL" or "DAILY#2026-10-19"
   totalVisits: number;         // Incremented via $inc: { totalVisits: 1 }
+  uniqueVisitors?: number;     // Unique visitors count via $inc: { uniqueVisitors: 1 }
+  returningVisits?: number;    // Returning visitor count via $inc: { returningVisits: 1 }
   uniqueIpCount?: number;      // Estimated unique count
   lastVisitedAt: Date;
   topCountries?: Record<string, number>; // e.g. { "US": 45, "IN": 120 }

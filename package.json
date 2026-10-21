@@ -5,8 +5,10 @@
   "type": "module",
   "main": "lambda/handler.js",
   "scripts": {
+    "test": "node --test",
     "test:local": "node lambda/local-runner.js",
-    "serve": "node scripts/serve-demo.js"
+    "serve": "node scripts/serve-demo.js",
+    "build:zip": "tar -a -cf function.zip index.js package.json lambda public node_modules"
   },
   "keywords": [
     "aws-lambda",

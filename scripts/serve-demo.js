@@ -12,6 +12,7 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { recordVisit, closeDatabaseConnection } from "../lambda/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +44,11 @@ function parseEnv() {
 
 const envVars = parseEnv();
 const PORT = process.env.PORT || envVars.PORT || 3000;
+
+// Expose .env values to process.env so lambda/db.js resolves the same MongoDB config
+for (const key of ["MONGODB_URI", "MONGODB_DB_NAME", "MONGODB_VISITS_COLLECTION", "MONGODB_STATS_COLLECTION", "TARGET_DOMAIN", "INGRESS_DOMAIN"]) {
+  if (!process.env[key] && envVars[key]) process.env[key] = envVars[key];
+}
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -81,6 +87,7 @@ window.REDIRECT_CONFIG = {
   countdownSeconds: ${parseInt(env.COUNTDOWN_SECONDS || "10", 10)},
   autoRedirect: ${env.AUTO_REDIRECT !== "false"},
   preservePathAndQuery: ${env.PRESERVE_PATH_AND_QUERY !== "false"},
+  serverTracking: true,
   slides: ${JSON.stringify(slides.length > 0 ? slides : [
     {
       image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1000&auto=format&fit=crop",
@@ -128,6 +135,26 @@ window.REDIRECT_CONFIG = {
       console.log(`[HTTP ${req.method}] 200 ${parsedUrl.pathname} [${contentType.split(";")[0]}] (Client IP: ${clientIp})`);
       res.writeHead(200, { "Content-Type": contentType });
       res.end(data);
+
+      // Track HTML pageviews in MongoDB (mirrors lambda/handler.js; assets are skipped)
+      if (ext === ".html") {
+        const targetOrigin = (process.env.TARGET_DOMAIN || "https://faphouse2.com").replace(/\/$/, "");
+        recordVisit({
+          domain: process.env.INGRESS_DOMAIN || "faphouse3.com",
+          ip: String(clientIp).split(",")[0].trim(),
+          country: req.headers["cf-ipcountry"] || "UNKNOWN",
+          city: req.headers["cf-ipcity"] || "UNKNOWN",
+          userAgent: req.headers["user-agent"] || "unknown",
+          referer: req.headers["referer"] || "direct",
+          path: parsedUrl.pathname,
+          queryString: parsedUrl.search || "",
+          targetDestination: `${targetOrigin}${parsedUrl.pathname}${parsedUrl.search || ""}`
+        }).catch((dbErr) => {
+          console.error(`[DB:ERROR] Visit tracking failed for ${parsedUrl.pathname}: ${dbErr.message}`);
+        });
+      } else {
+        console.log(`[FILTER]   Skipping database tracking for static asset request: "${parsedUrl.pathname}"`);
+      }
     });
   });
 });
@@ -141,4 +168,9 @@ server.listen(PORT, () => {
   console.log(` Storage Mode: MongoDB (URI: ${envVars.MONGODB_URI || "mongodb://localhost:27017"})`);
   console.log(` Live request logging enabled. Press Ctrl+C to stop.`);
   console.log(`======================================================\n`);
+});
+
+process.on("SIGINT", async () => {
+  await closeDatabaseConnection().catch(() => {});
+  process.exit(0);
 });

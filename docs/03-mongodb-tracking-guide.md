@@ -2,6 +2,50 @@
 
 This guide explains how visitor traffic, IP addresses, geolocation, and request metadata are captured and stored in **MongoDB** when users hit `faphouse3.com`.
 
+## Lambda completion and troubleshooting
+
+During Lambda initialization, the handler module opens MongoDB using top-level
+`await`. This runs once per execution environment, before its first request.
+On-demand Lambda normally initializes when traffic arrives; deploying a function
+does not by itself keep a connected instance running. Provisioned concurrency can
+initialize environments ahead of requests. Local imports retain lazy connection
+setup so scripts can load their configuration first.
+
+Before each tracking operation, a cached pool is checked with `{ ping: 1 }`.
+If the check fails, the stale client is closed and a new connection is established
+before any writes start. Concurrent callers share that health check or connection
+attempt. Startup failures are logged without preventing HTML delivery; the next
+tracking request retries. Look for `[DB:INIT_READY]`, `[DB:CONNECTION_REUSED]`,
+or `[DB:RECONNECTING]`. A ping adds one database round trip to warm tracking
+requests. Writes themselves are not replayed after failures.
+
+The Lambda handler awaits the visit insert and both counter updates before
+returning HTML. A 350 ms `Promise.race` does not cancel MongoDB work, and Lambda
+can freeze unfinished work after the response. Server-rendered pages disable the
+browser tracking beacon to avoid counting the same pageview twice. The standalone
+`/api/track` endpoint also awaits its writes and returns HTTP 503 on failure.
+
+Set the Lambda timeout to at least **15 seconds**. Connection selection and
+individual MongoDB operations have 2-second timeouts; the handler performs a
+health check, a possible reconnection, and three writes. Cold requests can take longer than 350 ms.
+The local demo server is a long-running process and still tracks after serving HTML.
+
+For a Lambda console test, use `rawPath: "/"` and
+`rawQueryString: "debug=true"`. This returns `dbStatus: "ok"` only after all writes
+finish, or `dbStatus: "failed"` with the actual error. The console does not run
+HTML or send browser beacons. A loopback IP (`127.0.0.1`) and `UNKNOWN` location
+mean the event lacks real visitor IP/geolocation fields; they do not diagnose
+MongoDB connectivity. Supply the HTTP API v2 request context and headers from a
+real request to exercise metadata extraction.
+
+Normal pages still return HTML when tracking fails. Writes to the visit log and
+the two counters are separate operations, so a failure may leave partial
+analytics. The browser does not retry these writes automatically. On successful
+saves, look for `[DB:COMPLETED]` followed by `[DB:SYNC]` in CloudWatch.
+
+Run `npm test` for offline tracking regression tests. These use a mocked MongoDB
+client and do not connect to Atlas or load `.env`.
+
 ---
 
 ## 1. What Details Can We Track & Where Do They Come From?

@@ -10,6 +10,7 @@ import { MongoClient } from "mongodb";
 
 let cachedClient = null;
 let cachedDb = null;
+let connectionPromise = null;
 
 /**
  * Safely masks MongoDB URI credentials for logging.
@@ -24,31 +25,57 @@ function sanitizeUri(uri) {
 }
 
 /**
- * Connects to MongoDB with connection reuse across warm Lambda invocations.
- * Logs connection establishment and pool reuse events.
+ * Verifies the cached pool with a ping, or connects before returning a database.
+ * Shares readiness checks and connection attempts across concurrent callers.
  */
 export async function getDatabase() {
   const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
   const dbName = process.env.MONGODB_DB_NAME || "faphouse3_analytics";
 
-  // Warm start: reuse existing open connection
-  if (cachedDb && cachedClient) {
-    console.log(`[DB:CONNECTION_REUSED] Reusing cached connection pool (Database: "${dbName}")`);
-    return cachedDb;
-  }
+  // A cached object alone does not prove the server is reachable after thawing.
+  if (connectionPromise) return connectionPromise;
 
+  connectionPromise = ensureDatabaseReady(uri, dbName);
+  try {
+    return await connectionPromise;
+  } finally {
+    connectionPromise = null;
+  }
+}
+
+async function ensureDatabaseReady(uri, dbName) {
+  if (cachedDb && cachedClient) {
+    try {
+      await cachedDb.command({ ping: 1 });
+      console.log(`[DB:CONNECTION_REUSED] MongoDB ping succeeded; reusing cached pool (Database: "${dbName}").`);
+      return cachedDb;
+    } catch (err) {
+      console.warn(`[DB:RECONNECTING] Cached MongoDB pool failed its health check: ${err.message}`);
+      const staleClient = cachedClient;
+      cachedClient = null;
+      cachedDb = null;
+      await staleClient.close().catch(() => {});
+    }
+  }
+  return connectDatabase(uri, dbName);
+}
+
+async function connectDatabase(uri, dbName) {
   // Cold start: establish new connection pool
   console.log(`[DB:CONNECTING] Connecting to MongoDB at: ${sanitizeUri(uri)} (DB: "${dbName}")...`);
   const connStartTime = Date.now();
 
-  try {
-    const client = new MongoClient(uri, {
-      maxPoolSize: 10,
-      minPoolSize: 1,
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000
-    });
+  const client = new MongoClient(uri, {
+    maxPoolSize: 10,
+    minPoolSize: 0,
+    // Bound connection attempts and individual writes. Allow at least 15s
+    // for the Lambda invocation to finish connecting and all three writes.
+    serverSelectionTimeoutMS: 2000,
+    connectTimeoutMS: 2000,
+    timeoutMS: 2000
+  });
 
+  try {
     await client.connect();
     const connDuration = Date.now() - connStartTime;
 
@@ -60,6 +87,7 @@ export async function getDatabase() {
   } catch (err) {
     const connDuration = Date.now() - connStartTime;
     console.error(`[DB:CONNECTION_ERROR] Failed to connect after ${connDuration}ms: ${err.message}`);
+    await client.close().catch(() => {});
     throw err;
   }
 }
@@ -75,6 +103,10 @@ export async function recordVisit(visitData) {
   const db = await getDatabase();
 
   const domain = visitData.domain || "faphouse3.com";
+  const visitorId = visitData.visitorId || "fh3_anon";
+  const isReturning = Boolean(visitData.isReturning);
+  const visitCount = Number(visitData.visitCount) || 1;
+
   const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
   const dailyPeriod = `DAILY#${today}`;
   const totalPeriod = "TOTAL";
@@ -89,6 +121,9 @@ export async function recordVisit(visitData) {
   // =========================================================================
   const visitDoc = {
     domain: domain,
+    visitorId: visitorId,
+    isReturning: isReturning,
+    visitCount: visitCount,
     ip: visitData.ip || "127.0.0.1",
     country: visitData.country || "UNKNOWN",
     city: visitData.city || "UNKNOWN",
@@ -101,7 +136,7 @@ export async function recordVisit(visitData) {
   };
 
   console.log(`[DB:INSERT_START] Writing visit log to collection '${visitsCollectionName}'...`);
-  console.log(`[DB:INSERT_PAYLOAD] IP: ${visitDoc.ip} | Country: ${visitDoc.country} | Path: ${visitDoc.path}`);
+  console.log(`[DB:INSERT_PAYLOAD] VID: ${visitorId} | Status: ${isReturning ? "RETURNING (#" + visitCount + ")" : "NEW"} | IP: ${visitDoc.ip} | Country: ${visitDoc.country}`);
 
   const insertStartTime = Date.now();
   const insertResult = await db.collection(visitsCollectionName).insertOne(visitDoc);
@@ -114,11 +149,20 @@ export async function recordVisit(visitData) {
   // =========================================================================
   console.log(`[DB:UPDATE_START] Incrementing counter in collection '${statsCollectionName}' for period '${dailyPeriod}'...`);
 
+  const counterIncrements = {
+    totalVisits: 1
+  };
+  if (isReturning) {
+    counterIncrements.returningVisits = 1;
+  } else {
+    counterIncrements.uniqueVisitors = 1;
+  }
+
   const updateStartTime = Date.now();
   const updateResult = await db.collection(statsCollectionName).findOneAndUpdate(
     { domain: domain, period: dailyPeriod },
     {
-      $inc: { totalVisits: 1 },
+      $inc: counterIncrements,
       $set: { lastVisitedAt: new Date() }
     },
     {
@@ -135,13 +179,14 @@ export async function recordVisit(visitData) {
   console.log(`                    -> Domain: ${domain}`);
   console.log(`                    -> Period: ${dailyPeriod}`);
   console.log(`                    -> Total Visits (Current): ${currentCount}`);
+  console.log(`                    -> Visitor Status: ${isReturning ? "Returning Visitor" : "New Unique Visitor"}`);
   console.log(`                    -> Last Visited At: ${new Date().toISOString()}`);
 
   // Optional: Also increment cumulative all-time total
   await db.collection(statsCollectionName).updateOne(
     { domain: domain, period: totalPeriod },
     {
-      $inc: { totalVisits: 1 },
+      $inc: counterIncrements,
       $set: { lastVisitedAt: new Date() }
     },
     { upsert: true }
@@ -153,6 +198,9 @@ export async function recordVisit(visitData) {
 
   return {
     insertedId: insertResult.insertedId,
+    visitorId: visitorId,
+    isReturning: isReturning,
+    visitCount: visitCount,
     period: dailyPeriod,
     totalVisits: currentCount,
     durationMs: totalOpTime
@@ -163,6 +211,9 @@ export async function recordVisit(visitData) {
  * Closes the MongoDB connection (used during graceful shutdown or CLI tests).
  */
 export async function closeDatabaseConnection() {
+  if (connectionPromise) {
+    await connectionPromise.catch(() => {});
+  }
   if (cachedClient) {
     console.log("[DB:DISCONNECT] Closing MongoDB connection pool...");
     await cachedClient.close();
