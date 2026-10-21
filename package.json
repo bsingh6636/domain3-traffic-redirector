@@ -1,24 +1,24 @@
 {
-  "name": "domain3-traffic-redirector",
-  "version": "1.2.0",
-  "description": "Traffic tracking and 10-second redirect gateway for faphouse3.com to faphouse2.com with MongoDB visit analytics",
+  "name": "quiettab",
+  "version": "2.0.0",
+  "description": "Browser privacy tools and original guides, with MongoDB pageview analytics and configurable guide advertisements",
   "type": "module",
   "main": "lambda/handler.js",
   "scripts": {
     "test": "node --test",
     "test:local": "node lambda/local-runner.js",
+    "test:proxy": "node scripts/check-backend-forwarding.js",
     "serve": "node scripts/serve-demo.js",
+    "lambda:build": "tar -a -cf function.zip index.js package.json lambda public node_modules",
     "build:zip": "tar -a -cf function.zip index.js package.json lambda public node_modules"
   },
   "keywords": [
-    "aws-lambda",
-    "faphouse3",
-    "faphouse2",
-    "traffic-tracker",
-    "mongodb",
-    "ip-tracking",
-    "redirect-gateway",
-    "image-carousel"
+    "browser-tools",
+    "privacy",
+    "url-cleaner",
+    "password-generator",
+    "word-counter",
+    "aws-lambda"
   ],
   "author": "",
   "license": "MIT",

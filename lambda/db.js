@@ -1,5 +1,5 @@
 /**
- * MongoDB Client & Database Logger for faphouse3.com
+ * MongoDB client and pageview logger for QuietTab
  *
  * Implements serverless connection pooling and structured logging for:
  * 1. Database connection lifecycle (cold connect, warm reuse, connection timing).
@@ -124,9 +124,31 @@ export async function recordVisit(visitData) {
     visitorId: visitorId,
     isReturning: isReturning,
     visitCount: visitCount,
-    ip: visitData.ip || "127.0.0.1",
+    ip: visitData.ip || null,
+    ipSource: visitData.ipSource || "not-recorded",
+    geoSource: visitData.geoSource || "not-recorded",
+    geoProvider: visitData.geoProvider || "not-recorded",
+    geoAvailable: Boolean(visitData.geoAvailable),
+    geoIsApproximate: Boolean(visitData.geoIsApproximate),
+    metadataTrust: visitData.metadataTrust || "not-recorded",
+    ipIsProxyPeer: Boolean(visitData.ipIsProxyPeer),
+    forwardedHost: visitData.forwardedHost || null,
+    cfRay: visitData.cfRay || null,
+    requestHost: visitData.requestHost || domain,
+    requestId: visitData.requestId || null,
+    analyticsVersion: visitData.analyticsVersion || 1,
+    isBot: Boolean(visitData.isBot),
+    trafficType: visitData.trafficType || "unclassified",
+    deviceType: visitData.deviceType || "unknown",
     country: visitData.country || "UNKNOWN",
     city: visitData.city || "UNKNOWN",
+    region: visitData.region || null,
+    regionCode: visitData.regionCode || null,
+    continent: visitData.continent || null,
+    timezone: visitData.timezone || null,
+    postalCode: visitData.postalCode || null,
+    latitude: visitData.latitude ?? null,
+    longitude: visitData.longitude ?? null,
     userAgent: visitData.userAgent || "unknown",
     referer: visitData.referer || "direct",
     path: visitData.path || "/",
@@ -152,7 +174,15 @@ export async function recordVisit(visitData) {
   const counterIncrements = {
     totalVisits: 1
   };
-  if (isReturning) {
+  if (visitData.isBot) {
+    counterIncrements.botVisits = 1;
+  } else if (visitData.trafficType === "browser-like") {
+    counterIncrements.browserLikeVisits = 1;
+    if (isReturning) counterIncrements.returningVisits = 1;
+    else counterIncrements.newBrowserCookies = 1;
+  } else if (visitData.analyticsVersion === 2) {
+    counterIncrements.unknownClientVisits = 1;
+  } else if (isReturning) {
     counterIncrements.returningVisits = 1;
   } else {
     counterIncrements.uniqueVisitors = 1;
@@ -160,7 +190,7 @@ export async function recordVisit(visitData) {
 
   const updateStartTime = Date.now();
   const updateResult = await db.collection(statsCollectionName).findOneAndUpdate(
-    { domain: domain, period: dailyPeriod },
+    { domain: domain, period: dailyPeriod, analyticsVersion: visitData.analyticsVersion || 1 },
     {
       $inc: counterIncrements,
       $set: { lastVisitedAt: new Date() }
@@ -184,7 +214,7 @@ export async function recordVisit(visitData) {
 
   // Optional: Also increment cumulative all-time total
   await db.collection(statsCollectionName).updateOne(
-    { domain: domain, period: totalPeriod },
+    { domain: domain, period: totalPeriod, analyticsVersion: visitData.analyticsVersion || 1 },
     {
       $inc: counterIncrements,
       $set: { lastVisitedAt: new Date() }

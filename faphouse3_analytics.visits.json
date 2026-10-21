@@ -1,0 +1,1040 @@
+[{
+  "_id": {
+    "$oid": "6ad89c36ba825741e26ff8cb"
+  },
+  "domain": "faphouse3.com",
+  "visitorId": "fh3_mvi08rpm_50b5aa2b8a557728",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "127.0.0.1",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "unknown",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T11:04:22.932Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad89c41ba825741e26ff8cc"
+  },
+  "domain": "faphouse3.com",
+  "visitorId": "fh3_mvi09022_cb3ba3a96b23370e",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "127.0.0.1",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "unknown",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T11:04:33.752Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad89c53ba825741e26ff8cd"
+  },
+  "domain": "faphouse3.com",
+  "visitorId": "fh3_mvi09dek_bbeed106fdf64b5b",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "127.0.0.1",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "unknown",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T11:04:51.013Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad89c8b15ce415d19a27239"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi0akry_6f5ac784e549ce46",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "49.43.240.34",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T11:05:47.259Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad89c9115ce415d19a2723a"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi0akry_6f5ac784e549ce46",
+  "isReturning": true,
+  "visitCount": 2,
+  "ip": "49.43.240.34",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T11:05:53.119Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8a4499f5c94e2cbe831c4"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi1h2ln_3683e6e9108d4e4f",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "17.166.235.32",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T11:38:49.876Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8a5266628e0b452d250f6"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi1lt0m_8f6307ab935538ef",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "34.91.119.153",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Scrapy/2.17.0 (+https://scrapy.org)",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T11:42:30.790Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8a9dbb628f069f544d5a8"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi2bmtw_eea13afe3790240d",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "27.159.75.50",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T12:02:35.808Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8ab678b4d337a8524cedb"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi2k495_6a931de9f0271b32",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "27.159.75.49",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T12:09:11.621Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8af5ce6460b14ba37b9a0"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi35tve_ddff0368229d1dc3",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "17.166.21.247",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T12:26:04.584Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b000e6460b14ba37b9a1"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi39cj1_c686df792745808c",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "186.189.96.160",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Windows NT 6.2; x86) AppleWebKit/537.36 (KHTML, like Gecko) Opera/60.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/xmlrpc.php",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/xmlrpc.php",
+  "createdAt": {
+    "$date": "2026-10-21T12:28:48.986Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b032e6460b14ba37b9a2"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi3aes7_c0adb08affcc4736",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T12:29:38.343Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b033e6460b14ba37b9a3"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi3aes7_c0adb08affcc4736",
+  "isReturning": true,
+  "visitCount": 2,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/sitemap.xml",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/sitemap.xml",
+  "createdAt": {
+    "$date": "2026-10-21T12:29:39.023Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b4b44da6896a15903c79"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi3z52q_ec41fcaf0a0e5d74",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "137.184.142.20",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T12:48:52.163Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b74ff3825a772aa47c21"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi4dg8l_29b374dc05d28905",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "34.148.63.167",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (compatible; CMS-Checker/1.0; +https://example.com)",
+  "referer": "https://faphouse3.com/",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T12:59:59.794Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b9b7a0b089785f4514e6"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi4qn79_7aabfe739aca7d5a",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "157.173.122.176",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (compatible; webXtrendBot/1.1; +https://webxtrend.com/crawler)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T13:10:15.362Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b9b8a0b089785f4514e7"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi4qo3n_1133eb571e8a2af1",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "157.173.122.176",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (compatible; webXtrendBot/1.1; +https://webxtrend.com/crawler)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T13:10:16.461Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8b9b9a0b089785f4514e8"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi4qosw_a971ce1cabec4d12",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "157.173.122.176",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (compatible; webXtrendBot/1.1; +https://webxtrend.com/crawler)",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T13:10:17.362Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8bd04d681d5292db71092"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi58rg1_87a4546425ca88ff",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "81.71.68.89",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+  "referer": "http://www.faphouse3.com",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T13:24:20.656Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8c1e6d155fd792b12d85c"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi5zk4z_b1817e627af0e176",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "94.103.89.39",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "referer": "https://FAPHOUSE3.COM",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T13:45:10.916Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8cd7bc6025058f967d254"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi7r394_c44ae6ea86cca5eb",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T14:34:35.030Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8cd7bc6025058f967d255"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi7r394_c44ae6ea86cca5eb",
+  "isReturning": true,
+  "visitCount": 2,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/sitemap.xml",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/sitemap.xml",
+  "createdAt": {
+    "$date": "2026-10-21T14:34:35.790Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8cf7eb624d56dfe73dc56"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi824pi_2886df112e93ac36",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "43.157.142.101",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+  "referer": "https://faphouse3.com/",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T14:43:10.112Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8d77e39ce2c322c7f2ab7"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi9a15d_7e3340e59b9ba84f",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "34.60.30.12",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (compatible; CMS-Checker/1.0; +https://example.com)",
+  "referer": "http://www.faphouse3.com",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T15:17:18.370Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8dabdde78708e0901f6a2"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvi9ru94_e7e5bdb6c8a01724",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "45.61.163.183",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64)",
+  "referer": "https://faphouse3.com/.git/config",
+  "path": "/.git/config",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/.git/config",
+  "createdAt": {
+    "$date": "2026-10-21T15:31:09.236Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8dc74c3999a55e010c378"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvia1909_e1872e3d68e753b7",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "52.167.144.66",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T15:38:28.271Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8dc74c3999a55e010c379"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvia19l9_1b7b633da0177b78",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "52.167.144.66",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T15:38:28.971Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8ddf76f2f9ccd76d36d53"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvia9jfg_c4ce176e583bd3a8",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "43.130.40.120",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+  "referer": "http://www.faphouse3.com",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T15:44:55.018Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8e8aeea13869d2732d4f1"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvibwc55_9a0b9b92c81418d5",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "80.85.246.140",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "referer": "https://FAPHOUSE3.COM",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T16:30:38.243Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8e8dd5d7ced408dc8664c"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvibxcc9_622af2d1dc2274be",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T16:31:25.193Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8e8dd5d7ced408dc8664d"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvibxcc9_622af2d1dc2274be",
+  "isReturning": true,
+  "visitCount": 2,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/sitemap.xml",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/sitemap.xml",
+  "createdAt": {
+    "$date": "2026-10-21T16:31:25.872Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8e95f5d7ced408dc8664e"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvic04f0_e391e2a89ec80c1a",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "117.98.48.40",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/videos/4PQBMm",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/videos/4PQBMm",
+  "createdAt": {
+    "$date": "2026-10-21T16:33:35.152Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad8f905784e2faa6096bb62"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mviedzvs_ce6d6796a9215978",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "15.235.126.144",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (compatible; MonsterLeadRadar/1.0; +https://monster-lead.com/bot)",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T17:40:21.419Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad901a36bc595fb5c25afb3"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvifpab8_7674e10f848b4376",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "142.147.225.197",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T18:17:07.794Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad903b7973a9320a9edfc36"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvig0ols_e73fb264f8913be4",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "5.107.175.229",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Mobile/15E148 Safari/604.1",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T18:25:59.518Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad907725651b51773c28263"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvigl5d0_448f09ddb8507b86",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T18:41:54.337Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad907735651b51773c28264"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvigl5d0_448f09ddb8507b86",
+  "isReturning": true,
+  "visitCount": 2,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/sitemap.xml",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/sitemap.xml",
+  "createdAt": {
+    "$date": "2026-10-21T18:41:55.015Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad909dd24581a3ad1ad880e"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvigyfhb_1c08637fc8e5ba0d",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "185.247.137.104",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (compatible; InternetMeasurement/1.0; +https://internet-measurement.com/)",
+  "referer": "http://www.faphouse3.com",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T18:52:13.995Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad90a9bef62779e98844d6f"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvih2hzs_55e79df61dba014e",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "5.193.109.209",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T18:55:23.875Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad91884942868629154a584"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvij6t8y_5b5333d77af379c6",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "118.25.195.79",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+  "referer": "https://faphouse3.com/",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T19:54:44.305Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad921be94c1d8d7ece9882b"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mviklg09_e4860e195770225c",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "179.238.41.80",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
+  "referer": "direct",
+  "path": "/es/gay/history",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/es/gay/history",
+  "createdAt": {
+    "$date": "2026-10-21T20:34:06.618Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad922d994c1d8d7ece9882c"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvikrhxf_58e1dcce7cf83235",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/robots.txt",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/robots.txt",
+  "createdAt": {
+    "$date": "2026-10-21T20:38:49.064Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad922da94c1d8d7ece9882d"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvikrhxf_58e1dcce7cf83235",
+  "isReturning": true,
+  "visitCount": 2,
+  "ip": "216.73.216.61",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+  "referer": "direct",
+  "path": "/sitemap.xml",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/sitemap.xml",
+  "createdAt": {
+    "$date": "2026-10-21T20:38:50.043Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad92487a6f84f5637418c88"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvil0q96_47e84164718e4c6f",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "176.233.97.16",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; arm64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/89.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/xmlrpc.php",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/xmlrpc.php",
+  "createdAt": {
+    "$date": "2026-10-21T20:45:59.727Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad924aba6f84f5637418c89"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvil1hvg_392f3e1612c1a4f6",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "45.138.12.168",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+  "referer": "http://www.faphouse3.com/",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T20:46:35.508Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad924e8a6f84f5637418c8a"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvil2syh_343a1fcc1b109fe8",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "103.230.20.244",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T20:47:36.605Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad92961115bf9d372eecfcb"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvilrcne_7d2eac6eb2c31dfd",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "5.194.175.27",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T21:06:41.801Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad92962115bf9d372eecfcc"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvilrdhx_58ee124033ba641a",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "5.194.175.27",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T21:06:42.861Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad92ed6243303fe4236f3dd"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvimlacg_ffad7c025f251032",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "92.99.236.6",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T21:29:58.481Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad92ed7243303fe4236f3de"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvimlbdl_84337fc469f1aa3d",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "92.99.236.6",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Mobile/15E148 Safari/604.1",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T21:29:59.780Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad92f1035bb697092a4cafe"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvimlacg_ffad7c025f251032",
+  "isReturning": true,
+  "visitCount": 2,
+  "ip": "92.99.236.6",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15",
+  "referer": "direct",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T21:30:56.509Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ad934ac2ae99b23331370ce"
+  },
+  "domain": "qr3rjkq2cgl6s6kygoltoxzmhe0qznjd.lambda-url.ap-south-1.on.aws",
+  "visitorId": "fh3_mvinhb8l_b32acd1dc3543741",
+  "isReturning": false,
+  "visitCount": 1,
+  "ip": "43.159.128.155",
+  "country": "UNKNOWN",
+  "city": "UNKNOWN",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+  "referer": "https://faphouse3.com/",
+  "path": "/",
+  "queryString": "",
+  "targetRedirect": "https://faphouse2.com/",
+  "createdAt": {
+    "$date": "2026-10-21T21:54:52.653Z"
+  }
+}]
