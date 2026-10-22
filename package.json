@@ -1,7 +1,7 @@
 {
   "name": "quiettab",
   "version": "2.0.0",
-  "description": "Browser privacy tools and original guides, with MongoDB pageview analytics and configurable guide advertisements",
+  "description": "Browser privacy tools and original guides, with MongoDB pageview analytics and configurable site-wide banner advertisements",
   "type": "module",
   "main": "lambda/handler.js",
   "scripts": {

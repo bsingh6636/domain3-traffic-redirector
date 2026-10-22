@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { webcrypto } from "node:crypto";
+import { runInNewContext } from "node:vm";
+import { readFileSync } from "node:fs";
 import { cleanUrl, generatePassword, textStats } from "../public/tools.js";
-import { INDEXABLE_PATHS, renderSite, sitemap, robots } from "../lambda/site.js";
+import { INDEXABLE_PATHS, adTag, renderSite, sitemap, robots } from "../lambda/site.js";
 
 test("cleaning removes tracking tags but preserves unknown query bytes and fragments", () => {
   const result = cleanUrl("https://example.com/path?utm_source=email&query=a%20b&fbclid=123&query=x+y#chapter");
@@ -66,21 +68,59 @@ test("internal content links resolve to published pages or shipped assets", () =
   }
 });
 
-test("configured advertisements appear only in guide placements", () => {
-  const previousEnabled = process.env.ADS_ENABLED;
+test("one inline banner appears on every published page by default", () => {
   const previousTag = process.env.AD_TAG_HTML;
-  process.env.ADS_ENABLED = "true";
-  process.env.AD_TAG_HTML = '<div id="test-ad">Test ad</div>';
+  const issuedSource = "https://bauval.org/22/955abbcef9875699b2d2ebba8f8a109d";
+  const slot = (html) => html.match(/<div class="ad-frame">([\s\S]*?)<\/div><\/div><\/section>/)[1];
   try {
-    assert.match(renderSite("/guides/private-browsing").html, /test-ad/);
-    for (const path of ["/", "/tools/url-cleaner", "/tools/password-generator", "/tools/text-counter"]) {
-      const page = renderSite(path);
-      assert.doesNotMatch(page.html, /data-load-ad|test-ad/);
+    process.env.AD_TAG_HTML = '<script>document.write("test-ad")</script>';
+    // The supplied tag is inserted verbatim (no HTML escaping, no wrapper frame).
+    assert.equal(slot(renderSite("/").html), process.env.AD_TAG_HTML);
+    delete process.env.AD_TAG_HTML;
+    for (const path of INDEXABLE_PATHS) {
+      const html = renderSite(path).html;
+      assert.equal(html.split(issuedSource).length - 1, 1, path);
+      assert.equal((html.match(/class="ad-frame"/g) || []).length, 1, path);
+      assert.match(html, /Advertisement &middot; Adsterra/);
+      // Adsterra's loader writes the creative through contentWindow.document of a nested
+      // about:blank frame; an opaque-origin (sandboxed srcdoc) wrapper makes that throw.
+      assert.ok(!/srcdoc=|sandbox=/.test(html), path);
+      const tag = slot(html);
+      assert.ok(tag.includes(issuedSource), path);
+      assert.match(tag, /'height' : 250/);
+      assert.match(tag, /'width' : 300/);
+      assert.ok(html.indexOf('class="ad-banner"') < html.indexOf('<h1'), path);
     }
-    delete process.env.ADS_ENABLED;
-    assert.doesNotMatch(renderSite("/guides/private-browsing").html, /test-ad/);
+    assert.ok(!renderSite("/missing-page").html.includes(issuedSource));
+    assert.match(renderSite("/privacy").html, /https:\/\/adsterra\.com\/privacy-policy\//);
+    assert.ok(!/sandboxed frame/.test(renderSite("/privacy").html + renderSite("/about").html + renderSite("/advertise").html));
   } finally {
-    if (previousEnabled === undefined) delete process.env.ADS_ENABLED; else process.env.ADS_ENABLED = previousEnabled;
+    if (previousTag === undefined) delete process.env.AD_TAG_HTML; else process.env.AD_TAG_HTML = previousTag;
+  }
+});
+
+test("the /22/ provider response renders into the registered async container", () => {
+  const previousTag = process.env.AD_TAG_HTML;
+  delete process.env.AD_TAG_HTML;
+  try {
+    const tag = adTag();
+    const providerResponse = readFileSync(new URL("./fixtures/adsterra-22.js", import.meta.url), "utf8");
+    const containers = new Map([...tag.matchAll(/<div id="([^"]+)"/g)].map((match) => [match[1], {
+      innerHTML: "", getElementsByTagName: () => []
+    }]));
+    const context = { document: { getElementById: (id) => containers.get(id) || null } };
+    context.window = context;
+    // The provider silently leaves the slot blank without the async registration.
+    runInNewContext(providerResponse, context);
+    assert.ok([...containers.values()].every((container) => !container.innerHTML));
+    for (const match of tag.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+      runInNewContext(match[1], context);
+    }
+    const containerId = context.atAsyncContainers?.[context.atOptions.key];
+    assert.ok(containers.has(containerId), "Register an existing container before loading /22/");
+    runInNewContext(providerResponse, context);
+    assert.match(containers.get(containerId).innerHTML, /Ad loader verified/);
+  } finally {
     if (previousTag === undefined) delete process.env.AD_TAG_HTML; else process.env.AD_TAG_HTML = previousTag;
   }
 });

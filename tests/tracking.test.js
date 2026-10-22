@@ -22,7 +22,6 @@ beforeEach(() => {
   process.env.MONGODB_URI = "mongodb://localhost:27017";
   process.env.ANALYTICS_ENABLED = "true";
   process.env.DEBUG_TOKEN = "test-debug-token";
-  delete process.env.ADS_ENABLED;
   delete process.env.AD_TAG_HTML;
   writes = [];
   failAt = null;

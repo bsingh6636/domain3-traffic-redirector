@@ -8,7 +8,7 @@ A standalone browser-tools and privacy-guides site, replacing the previous count
 - Three original, source-linked guides on private browsing, tracking links and passwords.
 - New QuietTab branding, SVG favicon, responsive design, About, Privacy and Advertise pages.
 - Server-rendered HTML with distinct titles/descriptions, canonical URLs, Open Graph/Twitter metadata, JSON-LD, robots.txt and an XML sitemap. Unknown paths return HTTP 404; known pages are crawlable without JavaScript.
-- An optional, clearly labelled 300x250 guide-ad placement. No third-party ads on the homepage or tool-input pages. No network is enabled by default.
+- A clearly labelled 300x250 banner directly below the header on every published page, including the homepage and tools. The Adsterra tag runs inline in the page, as the provider's loader requires (a sandboxed srcdoc wrapper blocks its render step). The bundled Adsterra tag loads by default.
 - MongoDB connection initialization/reuse, awaited writes, canonical-domain grouping, source-IP/location provenance, bot classification, versioned counters, and protected diagnostics. No tool-input or query-string logging.
 
 ## Preview and tests
@@ -35,8 +35,7 @@ Use .env.example as a reference. Lambda does not automatically load a local .env
 | ANALYTICS_ENABLED | true by default in Lambda; false disables visit writes and visitor cookies. |
 | LOCAL_ANALYTICS | Set true to opt the local preview into real DB writes. |
 | DEBUG_TOKEN | Operator secret for diagnostics; blank disables public diagnostics. |
-| ADS_ENABLED | false by default. Set true only after network approval and tag setup. |
-| AD_TAG_HTML | Exact approved banner tag, alternatively stored in public/ad-tag.html. Never use an advertiser-account API secret. |
+| AD_TAG_HTML | Optional override for the supplied Adsterra 300x250 tag in public/ad-tag.html. Leave unset to use the bundled tag. Never use an advertiser-account API secret. |
 | ADS_TXT | Actual seller lines supplied by your provider, alternatively public/ads.txt. Missing configuration returns 404 instead of inventing a seller ID. |
 
 Add provider ownership-verification markup to public/index.html only as instructed by the provider. Do not put verification account passwords or API keys into HTML.
@@ -66,4 +65,8 @@ Protected diagnostics: GET /?debug=true with Authorization: Bearer <DEBUG_TOKEN>
 db.stats.find({ domain: "faphouse3.com", period: "TOTAL", analyticsVersion: 2 });
 ```
 
-See [the monetization and traffic plan](docs/06-monetization-and-growth.md) for JuicyAds form entries, exact activation steps, and a measured acquisition plan. Earlier docs describe the previous redirect architecture and are historical.
+The supplied Adsterra banner is bundled in `public/ad-tag.html`. It loads automatically on the homepage and all published pages after deployment; no enable flag is required. Leave `AD_TAG_HTML` unset to use this file; an existing environment value overrides it. Local preview also loads the bundled banner unless `AD_TAG_HTML` overrides it with a test tag. No live ad requests or clicks are performed by the offline tests.
+
+The `/22/` loader requires `atAsyncContainers[bannerKey]` to identify an existing DOM container. The bundled tag registers this before loading the provider script; `atOptions` alone leaves this loader blank without a console error. Tests exercise its rendering contract with a local creative and no tracking requests.
+
+See [the monetization and traffic plan](docs/06-monetization-and-growth.md) for activation steps and a measured acquisition plan. Earlier docs describe the previous redirect architecture and are historical.
